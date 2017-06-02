@@ -1,5 +1,53 @@
-\documentclass{article}
+\documentclass[a4paper, 12pt]{article}
+
 \usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{float} % Om te bepalen waar figuren juist geplaatst worden.
+\usepackage{listings}
+
+% \geometry{tmargin=3cm, bmargin=2.2cm, lmargin=2.2cm, rmargin=2cm}
+
+% Geen geïndenteerde paragrafen, da's maar lelijk.
+\setlength{\parindent}{0pt}
+% Wel spatie tussen paragrafen please.
+\setlength{\parskip}{1em}
+
 \begin{document}
-(Type your content here.)
+
+\input{titlepage}
+
+\section{Exploratieve analyse en transformatie}
+\subsection*{Exploratieve analyse}
+We bekijken eerst een paarsgewijze scatterplots van de continue variabelen:
+
+% \begin{figure}
+% \begin{center}
+% \includegraphics[width=1.0\textwidth]{jacobi_convergentie}
+% \end{center}
+% \caption{Convergentiesnelheid van de Jacobi-methode voor de matrix \texttt{mat1}.}
+% \label{Jacobi_convergentie}
+% \end{figure}
+
+% \begin{table}[h!]
+% \centering
+% \begin{tabular}{r | l l l l l l l l }
+% Eigenwaarde & 1    &  2  \\
+% \hline
+% Bijdrage    & 0.55 &  0.21  \\
+% Cumulatief  & 0.55 &  0.76  \\
+% \end{tabular}
+% \caption{Relatieve bijdrage van elke eigenwaarde van de correlatiematrix aan de totale variantie van de data.}
+% \label{PCA_eigenwaarden_bijdragen}
+% \end{table}
+
+\clearpage
+\appendix
+
+% \section{Code}
+% \subsection*{1.R}
+% \lstinputlisting[basicstyle=\ttfamily\scriptsize,language=R,breaklines=true]{1.R}
+
 \end{document}
