@@ -41,7 +41,6 @@ if (regenerate_plots) {
   ggsave('jitter_noise.pdf', width=12, height=2)
 }
 
-
 # Find, save, and remove all extreme univariate outliers
 outlier_indexes = c()
 for (col in continuous_cols) {
@@ -59,6 +58,6 @@ XTrain = XTrain[-outlier_indexes,]
 # Pairwise plots
 if (regenerate_plots) {
   ggpairs(XTrain[,c(continuous_cols, factor_cols)], aes(alpha=0.4), labeller='label_parsed')
-  ggsave('pairs.pdf', width=15, height=10)
+  ggsave('pairs.pdf', width=12, height=10)
 }
 
