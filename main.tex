@@ -7,6 +7,9 @@
 \usepackage{amssymb}
 \usepackage{float} % Om te bepalen waar figuren juist geplaatst worden.
 \usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+
 \usepackage{cleveref}
 
 % \usepackage{geometry}
@@ -17,32 +20,55 @@
 % Wel spatie tussen paragrafen please.
 \setlength{\parskip}{1em}
 
-\newcommand{\var}[1]{\texttt{#1}}
+% Necessary to make space->underscore substitution work. 
+% Why is this?
+% -> Towards an answer: https://tex.stackexchange.com/questions/664/why-should-i-use-usepackaget1fontenc
+\usepackage[T1]{fontenc}
+\usepackage{xstring}
+% Command that typesets variables in fixed width font, and with spaces automatically replaced by underscores.
+\newcommand{\var}[1]{\texttt{\StrSubstitute{#1}{ }{\_}}}
+
+% For identifying individual datapoints - i.e. cars.
+\newcommand{\car}[1]{\textit{#1}}
+
 
 \begin{document}
 
+
 \input{titlepage}
+
 
 \section{Linear regression}
 
+The complete dataset of 1500 cars was split into a 1000-car training set and a 500-car test set. We continue this analysis with the training set.
+
+
 \subsection*{Explorative analysis \& outlier removal}
 
-All variables were examined for univariate outliers.
+All variables were examined for univariate outliers. As shown in \cref{extreme_outliers}, both \var{noise level} and \var{nox emissions} contain an extreme outlier. These are the \car{Volkswagen Jetta (from NOV 06 Wk 45 >) -- 1.4 TSI (170 PS) Sport} with a \var{noise level} of 0.3, and the \car{Vauxhall Signum MY2008 -- 3.0CDTi V6 24v with 16/17/18" wheel} with a \var{nox emissions} value of 237000, respectively. They were removed from the training set.
 
-boxplot of noise, nox
+(no additional real outliers found -- reference appendix, boxplot+points)
 
 \begin{figure}
-  \makebox[\textwidth][c]{
-  \includegraphics[width=0.9\paperwidth]{img/jitterbox_noise_level}\newline
-  \includegraphics[width=0.9\paperwidth]{img/jitterbox_nox_emissions}
-  }%
-  \caption{Univariate scatterplots of two variables with extreme outliers. Vertical jitter is added to mitigate overplotting.}
+  \makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{img/jitterbox_noise_level}}\\%
+  \makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{img/jitterbox_nox_emissions}}%
+  \caption{Univariate point plots of two variables with extreme outliers. Vertical jitter has been added to better show the distributions, by mitigating overplotting.}
   \label{extreme_outliers}
 \end{figure}
 
-identify outliers
+(introduce figure)
+
+Note the very strong correlations between the \var{urban\_metric}, \var{extra\_urban\_metric}, \var{combined\_metric}, and \var{co2} variables; and to a lesser extend the \var{engine\_capacity} variable. This is in accordance with their meaning: the three ``metrics'' are all a measure of fuel consumption. And cars with larger engine volumes consume more liters of fuel, and every liter of fuel contains a fixed amount of $\mathrm{CO_2}$.
+
+% \begin{figure}
+%   \makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{img/pairs}}%
+%   \caption{Uni- and bivariate distributions}
+%   \label{pairs}
+% \end{figure}
 
 appendix: boxplots of other variables (all variables, after outlier removal)
+
+
 
 split code in:
 - load \& split data, make cols (init)
@@ -51,13 +77,7 @@ split code in:
 - jitterbox all
 - pairs
 
-\begin{figure}
-  \makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{img/pairs}}%
-  \caption{Uni- and bivariate distributions}
-  \label{pairs}
-\end{figure}
 
-Note the very strong correlations between the \var{urban\_metric}, \var{extra\_urban\_metric}, \var{combined\_metric}, and \var{co2} variables; and to a lesser extend the \var{engine\_capacity} variable. This is in accordance with their meaning: the three ``metrics'' are all a measure of fuel consumption. And cars with larger engine volumes consume more liters of fuel, and every liter of fuel contains a fixed amount of $\mathrm{CO_2}$.
 
 \subsection*{Variable transformation}
 \subsection*{Variable selection}
@@ -73,14 +93,6 @@ Note the very strong correlations between the \var{urban\_metric}, \var{extra\_u
 \subsection*{Linear discriminant analysis}
 \subsection*{Quadratic discriminant analysis}
 \subsection*{Comparison}
-
-% \begin{figure}
-% \begin{center}
-% \includegraphics[width=1.0\textwidth]{jacobi_convergentie}
-% \end{center}
-% \caption{Convergentiesnelheid van de Jacobi-methode voor de matrix \texttt{mat1}.}
-% \label{Jacobi_convergentie}
-% \end{figure}
 
 % \begin{table}[h!]
 % \centering
