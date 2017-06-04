@@ -3,4 +3,6 @@ main.pdf
 *.aux
 *.log
 *.dvi
+*.out
 src/data.csv
+    
