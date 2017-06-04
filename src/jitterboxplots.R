@@ -17,6 +17,6 @@ for (col_name in outlier_col_names) {
           axis.text.y=element_blank(),
           axis.ticks.y=element_blank(),
           legend.position='none')
-  filename = paste('jitterbox_', col_name, '.pdf', sep='')
+  filename = paste('../jitterbox_', col_name, '.pdf', sep='')
   ggsave(filename, width=15, height=2)
 }
