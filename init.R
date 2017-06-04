@@ -51,16 +51,6 @@ if (regenerate_plots) {
   }
 }
 
-df = data.frame(vec=XTrain[,14])
-ggplot(df, aes(x='nox_emissions', y=vec)) +
-  # geom_boxplot(colour='grey60') +
-  geom_jitter(width=0.4) +
-  coord_flip() +
-  theme(axis.title.y=element_blank(),
-        axis.title.x=element_blank(),
-        axis.ticks.y=element_blank(),
-        legend.position='none')
-
 # Find, save, and remove all extreme univariate outliers
 outlier_indexes = c()
 for (col in continuous_cols) {
@@ -69,7 +59,7 @@ for (col in continuous_cols) {
   Q3 = quantile(col_data, c(0.75))
   IQR = Q3 - Q1
   new_outliers = which(col_data < Q1 - 15*IQR |
-                      col_data > Q3 + 15*IQR)
+                         col_data > Q3 + 15*IQR)
   outlier_indexes = c(outlier_indexes, new_outliers)
 }
 outliers = XTrain[outlier_indexes,]
