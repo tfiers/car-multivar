@@ -3,7 +3,7 @@ options(digits = 2) # Set output display precision
 cat("\014") # Clear console
 # Hit Ctrl+Shift+L to clear plots
 
-regenerate_plots = TRUE
+regenerate_plots = FALSE
 
 library(ggplot2)
 library(GGally)
@@ -58,6 +58,6 @@ XTrain = XTrain[-outlier_indexes,]
 # Pairwise plots
 if (regenerate_plots) {
   ggpairs(XTrain[,c(continuous_cols, factor_cols)], aes(alpha=0.4), labeller='label_parsed')
-  ggsave('pairs.pdf', width=12, height=10)
+  ggsave('pairs.pdf', width=15, height=13)
 }
 
