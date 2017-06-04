@@ -5,6 +5,9 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{float} % Om te bepalen waar figuren juist geplaatst worden.
+\usepackage{xstring}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cleveref}
 
 % \usepackage{geometry}
 % \geometry{tmargin=3cm, bmargin=2.2cm, lmar2.2cm, rmargin=2cm}
@@ -16,7 +19,6 @@
 
 % Necessary to make space->underscore substitution work. 
 \usepackage[T1]{fontenc}
-\usepackage{xstring}
 % Command that typesets variables in fixed width font, and with spaces automatically replaced by underscores.
 \newcommand{\var}[1]{\texttt{\StrSubstitute{#1}{ }{\_\allowbreak}}}
 
@@ -27,8 +29,7 @@
 \newcommand{\widefig}[1]{\makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{#1}}%
 }
 
-\usepackage[hidelinks]{hyperref}
-\usepackage{cleveref}
+\newcommand{\sectionref}[1]{section ``\nameref{#1}''}
 
 \begin{document}
 
@@ -40,7 +41,6 @@
 
 The complete dataset of 1500 cars was split into a 1000-car training set and a 500-car test set. We continue this analysis with the training set.
 
-
 \subsection*{Explorative analysis \& outlier removal}
 \label{outlier_removal}
 
@@ -49,9 +49,9 @@ All variables were examined for univariate outliers. As shown in \cref{extreme_o
 (no additional real outliers found -- reference appendix, boxplot+points)
 
 \begin{figure}
-  \widefig{img/jitterbox_extreme_outliers_noise_level}
-  \widefig{img/jitterbox_extreme_outliers_nox_emissions}
-  \caption{Univariate point plots of two variables with extreme outliers. Vertical jitter has been added to better show the distributions, by mitigating overplotting.}
+  \widefig{img/extreme_outliers_noise_level}
+  \widefig{img/extreme_outliers_nox_emissions}
+  \caption{Univariate point plots of two variables with extreme outliers. Vertical jitter has been added to mitigate overplotting. This makes the distribution density more apparent.}
   \label{extreme_outliers}
 \end{figure}
 .
@@ -59,9 +59,11 @@ All variables were examined for univariate outliers. As shown in \cref{extreme_o
 
 Note the very strong correlations between the \var{urban metric}, \var{extra urban metric}, \var{combined metric}, and \var{co2} variables; and to a lesser extend the \var{engine capacity} variable. This is in accordance with their meaning: the three ``metrics'' are all a measure of fuel consumption. And cars with larger engine volumes consume more liters of fuel, and every liter of fuel contains a fixed amount of $\mathrm{CO_2}$.
 
+(semi descrete-keep)
+
 \begin{figure}
   \widefig{img/pairs.pdf}
-  \caption{Uni- and bivariate distributions}
+  \caption{Uni- and bivariate sample distributions (after the two extreme outliers have been removed, as described in \sectionref{outlier_removal}).}
   \label{pairs}
 \end{figure}
 
@@ -121,7 +123,7 @@ split code in:
   \widefig{img/jitterbox_noise_level}
   \widefig{img/jitterbox_co2}
   \widefig{img/jitterbox_nox_emissions}
-  \caption{Univariate distribution of each continuous variable (after the two extreme outliers have been removed, as described in \nameref{outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting.}
+  \caption{Univariate distribution of each continuous variable (after the two extreme outliers have been removed, as described in \sectionref{outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting.}
   \label{jitterboxes}
 \end{figure}
 
