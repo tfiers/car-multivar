@@ -2,12 +2,14 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
-\usepackage{geometry}
+\usepackage{rotating}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{float} % Om te bepalen waar figuren juist geplaatst worden.
 \usepackage{listings}
+\usepackage{cleveref}
 
+% \usepackage{geometry}
 % \geometry{tmargin=3cm, bmargin=2.2cm, lmar2.2cm, rmargin=2cm}
 
 % Geen geïndenteerde paragrafen, da's maar lelijk.
@@ -15,21 +17,30 @@
 % Wel spatie tussen paragrafen please.
 \setlength{\parskip}{1em}
 
+\newcommand{\var}[1]{\texttt{#1}}
+
 \begin{document}
 
 \input{titlepage}
 
 \section{Linear regression}
-\subsection*{}
+
 \subsection*{Explorative analysis \& outlier removal}
-boxplot of noise, identify outliers
-% \begin{figure}
-% \begin{center}
-% \includegraphics[width=1.0\textwidth]{jacobi_convergentie}
-% \end{center}
-% \caption{Convergentiesnelheid van de Jacobi-methode voor de matrix \texttt{mat1}.}
-% \label{Jacobi_convergentie}
-% \end{figure}
+
+boxplot of noise, nox
+
+identify outliers
+
+appendix: boxplots of other variables (all variables, after outlier removal)
+
+\begin{figure}
+  \makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{pairs}}%
+  \caption{Uni- and bivariate distributions}
+  \label{pairs}
+\end{figure}
+
+Note the very strong correlations between the \var{urban\_metric}, \var{extra\_urban\_metric}, \var{combined\_metric}, and \var{co2} variables; and to a lesser extend the \var{engine\_capacity} variable. This is in accordance with their meaning: the three ``metrics'' are all a measure of fuel consumption. And cars with larger engine volumes consume more liters of fuel, and every liter of fuel contains a fixed amount of $\mathrm{CO_2}$.
+
 \subsection*{Variable transformation}
 \subsection*{Variable selection}
 \subsection*{Linear model}
