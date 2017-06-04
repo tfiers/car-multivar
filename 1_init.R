@@ -30,16 +30,36 @@ factor_cols = which(names(X) %in% factor_col_names)
 continuous_cols = which(!(names(X) %in% id_col_names)
                         & !(names(X) %in% factor_col_names))
 
-# One-dimensional jittered points plot of 'noise_level'
+# One-dimensional jittered points plots of variables with extreme outliers
 if (regenerate_plots) {
-  ggplot(XTrain, aes(x=noise_level, y='noise_level')) +
-    geom_jitter(width=0.4) +
-    theme(axis.title.y=element_blank(),
-        axis.text.y=element_blank(),
+  outlier_col_names = c('noise_level', 'nox_emissions')
+  for (col_name in outlier_col_names) {
+    col = which(names(X) == col_name)
+    df = data.frame(vec=XTrain[,col])
+    ggplot(df, aes(x=1, y=vec)) +
+      # geom_boxplot(colour='grey60') +
+      geom_jitter(width=0.4) +
+      coord_flip() +
+      ggtitle(col_name) +
+      theme(axis.title.y=element_blank(),
+            axis.title.x=element_blank(),
+            axis.text.y=element_blank(),
+            axis.ticks.y=element_blank(),
+            legend.position='none')
+    filename = paste('jitterbox_', col_name, '.pdf', sep='')
+    ggsave(filename, width=15, height=2)
+  }
+}
+
+df = data.frame(vec=XTrain[,14])
+ggplot(df, aes(x='nox_emissions', y=vec)) +
+  # geom_boxplot(colour='grey60') +
+  geom_jitter(width=0.4) +
+  coord_flip() +
+  theme(axis.title.y=element_blank(),
+        axis.title.x=element_blank(),
         axis.ticks.y=element_blank(),
         legend.position='none')
-  ggsave('jitter_noise.pdf', width=12, height=2)
-}
 
 # Find, save, and remove all extreme univariate outliers
 outlier_indexes = c()
