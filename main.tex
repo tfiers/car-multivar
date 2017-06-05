@@ -7,10 +7,12 @@
 \usepackage{float}
 \usepackage{placeins}
 \usepackage{xstring}
+\usepackage{geometry}
+\usepackage{enumitem}
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 
-% \usepackage{geometry}
+
 % \geometry{tmargin=3cm, bmargin=2.2cm, lmar2.2cm, rmargin=2cm}
 
 % Geen geïndenteerde paragrafen, da's maar lelijk.
@@ -24,7 +26,7 @@
 \newcommand{\var}[1]{\texttt{\StrSubstitute{#1}{ }{\_\allowbreak}}}
 
 % For identifying individual datapoints -- i.e. cars.
-\newcommand{\car}[1]{\textit{``#1''}}
+\newcommand{\car}[3]{``#1 \textit{#2} #3''}
 
 % For figures accross the page -- wider than the text width
 \newcommand{\widefig}[1]{\makebox[\textwidth][c]{\includegraphics[width=0.9\paperwidth]{#1}}%
@@ -45,21 +47,35 @@ The complete dataset of 1500 cars was split into a 1000-car training set and a 5
 \subsection*{Explorative analysis \& outlier removal}
 \label{outlier_removal}
 
-All variables were examined for univariate outliers. Both \var{noise level} and \var{nox emissions} contain an extreme outlier. (See \cref{extreme_outliers} in the appendix for supporting plots). They are the \car{Volkswagen Jetta (from NOV 06 Wk 45 >) -- 1.4 TSI (170 PS) Sport} with a \var{noise level} of 0.3, and the \car{Vauxhall Signum MY2008 -- 3.0CDTi V6 24v with 16/17/18" wheel} with a \var{nox emissions} value of 237000, respectively. They were removed from the training set.
+We search for outliers by calculating, for each data point, its Mahalanobis distance -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{outliers} shows the resulting robust distances.
 
-No additional strong univariate outliers (that could have a strong influence on the subsequent regression and classification tasks) were found. See \cref{jitterboxes} in the appendix for supporting plots.
+\begin{figure}
+  \widefig{img/multivar_outlier_all}
+  \widefig{img/multivar_outlier_zoom}
+  \caption{Robust distance-to-center of each car in the training set.}
+  \label{outliers}
+\end{figure}
+
+We find three strong outliers:
+\begin{itemize}[topsep=0pt,itemsep=0pt]
+  \item the \car{Volkswagen}{Jetta (from NOV 06 Wk 45 >)}{1.4 TSI (170 PS) Sport} with an abnormal \var{noise level} of 0.3;
+  \item the \car{Vauxhall}{Signum MY2008}{3.0CDTi V6 24v with 16/17/18" wheel} with an abnormal \var{nox emissions} value of 237000;
+  \item the \car{MG Rover Group}{Streetwise}{1.8} without any individually abnormal variables.
+\end{itemize}
+Note that this third outlier would not have been found had we only looked at univariate (or even bivariate) distributions of the data.
+
+The found strong outliers are removed from the training set.
+
 
 \begin{figure}
   \widefig{img/pairs.pdf}
-  \caption{Uni- and bivariate sample distributions (after the two extreme outliers have been removed, as described in \sectionref{outlier_removal}).}
+  \caption{Uni- and bivariate sample distributions (after the strongest outliers have been removed, as described in \sectionref{outlier_removal}).}
   \label{pairs}
 \end{figure}
 
-\Cref{pairs} shows the uni- and bivariate sample distributions. Note the very strong correlations between \var{urban metric}, \var{extra urban metric}, \var{combined metric}, and \var{co2} -- and to a lesser extend \var{engine capacity}. This is in accordance with their meanings: all three \var{ metrics} measure fuel consumption; and cars with larger engine volumes consume more liters of fuel, and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
+\Cref{pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \var{urban metric}, \var{extra urban metric}, \var{combined metric}, and \var{co2} -- and to a lesser extend \var{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \var{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
 
-We also note that for the variable \var{noise level}, a large subset of cars take on discrete values. (There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; other variables would have disproportionately less impact on the clustering. However, we decide this does not impact the subsequent regression and classification tasks too much, so we keep this variable for now.
-
-(multivariate outliers: robust center \& scale, mahalonobis distance)
+We also note that for the variable \var{noise level}, a large subset of cars take on discrete values. (There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this does not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
 
 \subsection*{Variable transformation}
 \subsection*{Variable selection}
@@ -88,8 +104,22 @@ We also note that for the variable \var{noise level}, a large subset of cars tak
 % \label{PCA_eigenwaarden_bijdragen}
 % \end{table}
 
+\begin{thebibliography}{9}
+
+\bibitem{mcd} 
+Rousseeuw, P. J. and Leroy, A. M. 
+\textit{Robust Regression and Outlier Detection}. 
+Wiley, 1987.
+
+\bibitem{fastmcd} 
+Rousseeuw, P. J. and van Driessen, K.
+\textit{A fast algorithm for the minimum covariance determinant estimator.}
+Technometrics 41, 212–223, 1999.
+
 \clearpage
 \appendix
+
+\end{thebibliography}
 
 \section{Code}
 % \subsection*{1.R}
@@ -97,14 +127,7 @@ We also note that for the variable \var{noise level}, a large subset of cars tak
 
 \FloatBarrier
 \section{Extra figures}
-
-\begin{figure}
-  \widefig{img/extreme_outliers_noise_level}
-  \widefig{img/extreme_outliers_nox_emissions}
-  \caption{Univariate point plots of two variables with extreme outliers. Vertical jitter has been added to mitigate overplotting;  this makes the distribution density more apparent.}
-  \label{extreme_outliers}
-\end{figure}
-
+\newgeometry{top=0.3cm}
 
 \begin{figure}
   \widefig{img/jitterbox_engine_capacity}
@@ -113,8 +136,9 @@ We also note that for the variable \var{noise level}, a large subset of cars tak
   \widefig{img/jitterbox_combined_metric}
   \widefig{img/jitterbox_noise_level}
   \widefig{img/jitterbox_co2}
+  \widefig{img/jitterbox_co_emissions}
   \widefig{img/jitterbox_nox_emissions}
-  \caption{Univariate distribution of each continuous variable, after the two extreme outliers have been removed (as described in \sectionref{outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting.}
+  \caption{Univariate distribution of each continuous variable, after the strongest outliers have been removed (as described in \sectionref{outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting; this makes the distribution density more apparent.}
   \label{jitterboxes}
 \end{figure}
 

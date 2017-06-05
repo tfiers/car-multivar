@@ -1,7 +1,6 @@
 source('init.R')
 source('remove_outliers.R')
 
-library(ggplot2)
 library(GGally)
 
 # Pairwise plots
