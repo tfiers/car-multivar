@@ -9,11 +9,13 @@
 \usepackage{xstring}
 \usepackage{geometry}
 \usepackage{enumitem}
+\usepackage{listings}
+\usepackage{color}
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 
 
-% \geometry{tmargin=3cm, bmargin=2.2cm, lmar2.2cm, rmargin=2cm}
+\geometry{tmargin=2.5cm, bmargin=3cm}
 
 % Geen geïndenteerde paragrafen, da's maar lelijk.
 \setlength{\parindent}{0pt}
@@ -49,14 +51,15 @@ The complete dataset of 1500 cars was split into a 1000-car training set and a 5
 
 We search for outliers by calculating, for each data point, its Mahalanobis distance -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{outliers} shows the resulting robust distances.
 
-\begin{figure}
+\begin{figure}%[h]
   \widefig{img/multivar_outlier_all}
+  \vspace{1mm} \newline
   \widefig{img/multivar_outlier_zoom}
   \caption{Robust distance-to-center of each car in the training set.}
   \label{outliers}
 \end{figure}
 
-We find three strong outliers:
+Three strong outliers are found:
 \begin{itemize}[topsep=0pt,itemsep=0pt]
   \item the \car{Volkswagen}{Jetta (from NOV 06 Wk 45 >)}{1.4 TSI (170 PS) Sport} with an abnormal \var{noise level} of 0.3;
   \item the \car{Vauxhall}{Signum MY2008}{3.0CDTi V6 24v with 16/17/18" wheel} with an abnormal \var{nox emissions} value of 237000;
@@ -67,7 +70,7 @@ Note that this third outlier would not have been found had we only looked at uni
 The found strong outliers are removed from the training set.
 
 
-\begin{figure}
+\begin{figure}%[H]
   \widefig{img/pairs.pdf}
   \caption{Uni- and bivariate sample distributions (after the strongest outliers have been removed, as described in \sectionref{outlier_removal}).}
   \label{pairs}
@@ -75,12 +78,42 @@ The found strong outliers are removed from the training set.
 
 \Cref{pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \var{urban metric}, \var{extra urban metric}, \var{combined metric}, and \var{co2} -- and to a lesser extend \var{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \var{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
 
-We also note that for the variable \var{noise level}, a large subset of cars take on discrete values. (There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this does not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
+We also note that for the variable \var{noise level}, a large subset of cars take on discrete values. (There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
 
-\subsection*{Variable transformation}
-\subsection*{Variable selection}
-\subsection*{Linear model}
-\subsection*{Gauss-Markov conditions}
+\subsection*{Model selection}
+
+A linear model regressing on the \var{co2} variable is constructed via bidirectional stepwise regression. (That is, predictor variables to add to or remove from the model are selected stepwise, in a greedy fashion). The ordinary least squares (OLS) estimator for the model parameters is used. The Akaike Information Criterion (AIC) is used to compare models. The procedure is started both from a model containing all predictor variables, and from an empty model containing only a constant term.
+
+\Cref{table} lists all 
+
+\begin{table}
+\centering
+\begin{tabular}{r|r|r|r|c}
+Variable & $\lambda_{ML}$ & $p_{before}$ & $p_{after}$ \\
+\hline
+\var{engine capacity}    & -0.65 & 4.35e-33 & 2.24e-12 \\
+\var{urban metric}       & -0.06 & 1.65e-23 &    0.164 \\
+\var{extra urban metric} & -0.64 & 3.14e-22 &    0.002 \\
+\var{combined metric}    & -0.37 & 3.41e-23 &    0.011 \\
+\var{noise level}        &  7.11 & 1.54e-14 &  2.5e-12 \\
+\var{co2}                & -0.18 & 4.79e-21 &    0.067 \\
+\var{co emissions}       &  0.29 & 7.00e-26 &    0.093 \\
+\var{nox emissions}      &  0.04 & 1.44e-35 & 9.93e-13
+\end{tabular}
+\caption{$p$-values for the Shapiro-Wilk test of normality before and after transformation. The transformation }
+\label{predictorvar_transform}
+\end{table}
+
+\subsection*{Model assumptions}
+
+For a given model (that is, for a given selection of predictor variables and for given tranformations of the predictor variables and/or the response variable), for the OLS estimator to be the best linear unbiased estimator of the model parameters, the Gauss-Markov conditions need to be satisfied. The first condition, that the errors have expectation zero, is satisfied by construction. The other conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven, but we can check whether some necessary conditions seem to be satisfied.
+(residual plots)
+
+Additionally, the AIC assumes the errors to be normally distributed. (This is checked via the Shapiro-Wilk test and via a QQnorm plot)
+
+(powertransform?)
+((multicollinearity))
+
 
 \section{Classification}
 \subsection*{Variable selection}
@@ -92,20 +125,8 @@ We also note that for the variable \var{noise level}, a large subset of cars tak
 \subsection*{Quadratic discriminant analysis}
 \subsection*{Comparison}
 
-% \begin{table}[h!]
-% \centering
-% \begin{tabular}{r | l l l l l l l l }
-% Eigenwaarde & 1    &  2  \\
-% \hline
-% Bijdrage    & 0.55 &  0.21  \\
-% Cumulatief  & 0.55 &  0.76  \\
-% \end{tabular}
-% \caption{Relatieve bijdrage van elke eigenwaarde van de correlatiematrix aan de totale variantie van de data.}
-% \label{PCA_eigenwaarden_bijdragen}
-% \end{table}
 
 \begin{thebibliography}{9}
-
 \bibitem{mcd} 
 Rousseeuw, P. J. and Leroy, A. M. 
 \textit{Robust Regression and Outlier Detection}. 
@@ -115,16 +136,36 @@ Wiley, 1987.
 Rousseeuw, P. J. and van Driessen, K.
 \textit{A fast algorithm for the minimum covariance determinant estimator.}
 Technometrics 41, 212–223, 1999.
+\end{thebibliography}
+
 
 \clearpage
 \appendix
 
-\end{thebibliography}
-
+\newgeometry{left=3cm, right=3cm}
 \section{Code}
-% \subsection*{1.R}
-% \lstinputlisting[basicstyle=\ttfamily\scriptsize,language=R,breaklines=true]{1.R}
+\FloatBarrier
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{myred}{rgb}{0.78,0,0.32}
+\lstset{language=R,
+        basicstyle=\scriptsize,
+        breaklines=true,
+        title=\lstname,
+        frame=single,
+        commentstyle=\color{mygreen},
+        numberstyle=\tiny\color{mygray},
+        keywordstyle=\color{blue},
+        stringstyle=\color{myred}
+}
+\lstinputlisting{src/init.R}
+\lstinputlisting{src/remove_outliers.R}
+\lstinputlisting{src/outliers_plot.R}
+\lstinputlisting{src/pairs.R}
+\lstinputlisting{src/jitterboxplots.R}
+\lstinputlisting{src/lm.R}
 
+\clearpage
 \FloatBarrier
 \section{Extra figures}
 \newgeometry{top=0.3cm}
