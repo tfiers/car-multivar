@@ -98,12 +98,12 @@ The found strong outliers are removed from the training set.
 
 \Cref{pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \var{urban metric}, \var{extra urban metric}, \var{combined metric}, and \var{co2} -- and to a lesser extend \var{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \var{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
 
-We also note that for the variable \var{noise level}, a large subset of cars take on discrete values. (There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
+We also note that for the variable \var{noise level}, a large subset of cars take on discrete values.(There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
 
 
 \subsection*{Model construction}
 
-We will construct a general linear model to predict the \var{co2} variable. The predictor variables to include in the model will be selected via bidirectional stepwise regression. The Akaike Information Criterion (AIC) is used to compare models. The least squares estimator will always be used to estimate the coefficients $\boldsymbol{\beta}$ for a candidate model.
+We will construct a general linear model to predict the \var{co2} variable. The predictor variables to include in the model will be selected via bidirectional stepwise regression. The Akaike Information Criterion (AIC) is used to compare models. The least squares estimator will always be used to estimate the coefficients $\boldsymbol{\beta}$ for a candidate model. The categorical variables \var{euro standard}, \var{transmission type}, and \var{fuel type} are expanded into indicator variables (e.g. \var{fuel type Petrol}, taking on either a 0 or a 1).
 
 \paragraph{Predictor variable transformations}
 \label{par:var_transform}\leavevmode\\
@@ -130,7 +130,8 @@ We now create a first linear model (via stepwise AIC regression starting from a 
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.7\linewidth]{img/pre-bc-response_pre-removal_lambda-ml}
+  \includegraphics[width=0.7\linewidth]
+  {img/pre-bc-response_pre-removal_lambda-ml}
   \caption{Log-likelihood of $\lambda$ for the Box-Cox transformation of the response variable of the linear model described in \sectionref{par:responsevar_transfrom}.}
   \label{fig:lambda_ml}
 \end{figure}
@@ -152,19 +153,8 @@ The residuals of the model with transformed response variable are shown in \cref
   \label{post-bc-response_pre-removal}
 \end{figure}
 
-\paragraph{stepaic finally}\leavevmode\\
-- finally
-- two seeds, they converge
-- refer to table
-- (maybe mention: rather high p nox)
-- (R2, R2adj)
-- ANOVA
-- vars not included
-- (final AIC)
-
-The procedure will be started both from a model containing all predictor variables, and from an empty model containing only a constant term.
-
-convergence!
+\paragraph{Variable selection}\leavevmode\\
+With optimal input and output transformations and the strongest outliers removed, we can now construct our final model, by selecting an appropriate subset of predictor variables. As already mentioned, bidirectional stepwise AIC regression is used. The procedure is started both from a model containing all predictor variables, and from an empty model containing only a constant term. Both procedures converge to the same model. The included variables, along with estimates for their coefficient and an analysis of variance (ANOVA), are shown in \cref{table:lm}. The variables that are not included, are \var{noise level} and \var{transmission type Manual}. We find a final $R^2$ value of 0.9987, an adjusted $R^2$ value of 0.9987, and a mean squared error $\hat{\sigma}^2$ of $4.750\times 10^{-7}$. The standardised residuals are shown in \cref{post-bc-response_post-removal}.
 
 \begin{figure}
   \widedoublefig
@@ -178,6 +168,7 @@ convergence!
 \centering
 \wide{\input{table_lm}}
 \caption{Coefficients and ANOVA of the final general linear model.}
+\label{table:lm}
 \end{table}
 
 
