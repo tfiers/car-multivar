@@ -3,4 +3,4 @@
  * [Assignment](assignment.pdf)
  * [Final report](main.pdf)
 
-![Uni- and bivariate sample distributions of the data](img/pairs.png)
+![Uni- and bivariate sample distributions of the data](fig/pairs.png)
