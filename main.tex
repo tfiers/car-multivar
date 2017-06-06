@@ -12,6 +12,7 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{physics}
 \usepackage{subcaption}
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
@@ -30,7 +31,7 @@
 % Necessary to make space->underscore substitution work. 
 \usepackage[T1]{fontenc}
 % Command that typesets variables in fixed width font, and with spaces automatically replaced by underscores.
-\newcommand{\var}[1]{\texttt{\StrSubstitute{#1}{ }{\_\allowbreak}}}
+\newcommand{\varr}[1]{\texttt{\StrSubstitute{#1}{ }{\_\allowbreak}}}
 
 % For identifying individual datapoints -- i.e. cars.
 \newcommand{\car}[3]{``#1 \textit{#2} #3''}
@@ -41,19 +42,32 @@
 % For figures accross the page -- wider than the text width
 \newcommand{\widefig}[1]{\wide{\includegraphics[width=0.9\paperwidth]{#1}}}
 
-\newcommand{\widedoublefig}[2]{\wide{
+\newcommand{\widesubfig}[2]{\wide{
   \centering
   \begin{subfigure}[b]{0.65\textwidth}
-    \includegraphics[width=\textwidth]{#1}
+    #1
   \end{subfigure}
   \begin{subfigure}[b]{0.65\textwidth}
-    \includegraphics[width=\textwidth]{#2}
+    #2
   \end{subfigure}
   }
 }
 
+\newcommand{\widetwofigs}[2]{\wide{
+  \centering
+  \begin{minipage}[t]{0.62\textwidth}
+  #1
+  \end{minipage}
+  \hspace{1em}
+  \begin{minipage}[t]{0.62\textwidth}
+  #2
+  \end{minipage}
+ }
+}
+
 \newcommand{\sectionref}[1]{section ``\nameref{#1}''}
 
+% Shortcut
 \newcommand{\n}[1]{\num{#1}}
 
 \begin{document}
@@ -66,23 +80,23 @@
 
 The complete dataset of 1500 cars was split into a 1000-car training set and a 500-car test set. We continue this analysis with the training set.
 
-\subsection*{Explorative analysis \& outlier removal}
-\label{outlier_removal}
+\subsection*{Exploratory analysis \& outlier removal}
+\label{sec:RD_outlier_removal}
 
-We search for outliers by calculating, for each data point, its Mahalanobis distance -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{outliers} shows the resulting robust distances.
+We search for outliers by calculating, for each data point, its Mahalanobis distance -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{fig:RD_outliers} shows the resulting robust distances.
 
 \begin{figure}%[h]
   \widefig{img/multivar_outlier_all}
   \vspace{1mm} \newline
   \widefig{img/multivar_outlier_zoom}
   \caption{Robust distance-to-center of each car in the training set.}
-  \label{outliers}
+  \label{fig:RD_outliers}
 \end{figure}
 
 Three strong outliers are found:
 \begin{itemize}[topsep=0pt,itemsep=0pt]
-  \item the \car{Volkswagen}{Jetta (from NOV 06 Wk 45 >)}{1.4 TSI (170 PS) Sport} with an abnormal \var{noise level} of 0.3;
-  \item the \car{Vauxhall}{Signum MY2008}{3.0CDTi V6 24v with 16/17/18" wheel} with an abnormal \var{nox emissions} value of 237000;
+  \item the \car{Volkswagen}{Jetta (from NOV 06 Wk 45 >)}{1.4 TSI (170 PS) Sport} with an abnormal \varr{noise level} of 0.3;
+  \item the \car{Vauxhall}{Signum MY2008}{3.0CDTi V6 24v with 16/17/18" wheel} with an abnormal \varr{nox emissions} value of 237000;
   \item the \car{MG Rover Group}{Streetwise}{1.8} without any individually abnormal variables.
 \end{itemize}
 Note that this third outlier would not have been found had we only looked at univariate (or even bivariate) distributions of the data.
@@ -92,92 +106,114 @@ The found strong outliers are removed from the training set.
 
 \begin{figure}%[H]
   \widefig{img/pairs.pdf}
-  \caption{Uni- and bivariate sample distributions (after the strongest outliers have been removed, as described in \sectionref{outlier_removal}).}
-  \label{pairs}
+  \caption{Uni- and bivariate sample distributions (after the strongest outliers have been removed, as described in \sectionref{sec:RD_outlier_removal}).}
+  \label{fig:pairs}
 \end{figure}
 
-\Cref{pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \var{urban metric}, \var{extra urban metric}, \var{combined metric}, and \var{co2} -- and to a lesser extend \var{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \var{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
+\Cref{fig:pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2} -- and to a lesser extend \varr{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \varr{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
 
-We also note that for the variable \var{noise level}, a large subset of cars take on discrete values.(There are also cars with \var{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
+We also note that for the variable \varr{noise level}, a large subset of cars take on discrete values. (There are also cars with \varr{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
 
 
 \subsection*{Model construction}
 
-We will construct a general linear model to predict the \var{co2} variable. The predictor variables to include in the model will be selected via bidirectional stepwise regression. The Akaike Information Criterion (AIC) is used to compare models. The least squares estimator will always be used to estimate the coefficients $\boldsymbol{\beta}$ for a candidate model. The categorical variables \var{euro standard}, \var{transmission type}, and \var{fuel type} are expanded into indicator variables (e.g. \var{fuel type Petrol}, taking on either a 0 or a 1).
+We will construct a general linear model to predict the \varr{co2} variable. The predictor variables to include in the model will be selected via bidirectional stepwise regression. The Akaike Information Criterion (AIC) is used to compare models. The least squares estimator will always be used to estimate the coefficients $\boldsymbol{\beta}$ for a candidate model. The categorical variables \varr{euro standard}, \varr{transmission type}, and \varr{fuel type} are expanded into indicator variables (e.g. \varr{fuel type Petrol}, taking on either a 0 or a 1).
 
 \paragraph{Predictor variable transformations}
-\label{par:var_transform}\leavevmode\\
-The AIC assumes the residuals to be normally distributed. As they are an affine transformation of the predictor variables, the predictor variables need to be normally distributed as well. Thus, before starting the stepwise variable selection procedure, we find a Box-Cox power transformation for all continuous predictor variables that maximises their normality in the maximum likelihood sense. The thusly found exponents $\lambda$ are listed in \cref{table:predictorvar_transform}, along with the $p$-values for the Shapiro-Wilk test of normality before and after the transformation. Note that, except for \var{noise level}, the normality of each variable greatly increases after the transformation. This was confirmed using normal QQ plots of the variables. We apply the maximum likelihood transformation to all continuous predictor variables, except for \var{noise level} (as its maximum likelihood exponent falls outside the usual range, and its normality does not significantly improve after transformation).
+\label{sec:var_transform}\leavevmode\\
+The AIC assumes the residuals to be normally distributed. As they are an affine transformation of the predictor variables, the predictor variables need to be normally distributed as well. Thus, before starting the stepwise variable selection procedure, we find a Box-Cox power transformation for all continuous predictor variables that maximises their normality in the maximum likelihood sense. The thusly found exponents $\lambda$ are listed in \cref{table:predictorvar_transform}, along with the $p$-values for the Shapiro-Wilk test of normality before and after the transformation. Note that, except for \varr{noise level}, the normality of each variable greatly increases after the transformation. This was confirmed using normal QQ plots of the variables. We apply the maximum likelihood transformation to all continuous predictor variables, except for \varr{noise level} (as its maximum likelihood exponent falls outside the usual range, and its normality does not significantly improve after transformation).
 
 \begin{table}
 \centering
 \input{table_lambdas}
-\caption{Maximum likelihood transformation exponents $\lambda$, and $p$-values for the Shapiro-Wilk test of normality before and after transformation, for each possible continuous predictor variable, as described in \sectionref{par:var_transform}.}
+\caption{Maximum likelihood transformation exponents $\lambda$, and $p$-values for the Shapiro-Wilk test of normality before and after transformation, for each possible continuous predictor variable, as described in \sectionref{sec:var_transform}.}
 \label{table:predictorvar_transform}
 \end{table}
 
 \paragraph{Response variable transformation}
-\label{par:responsevar_transfrom}\leavevmode\\
-We now create a first linear model (via stepwise AIC regression starting from a model containing all predictor variables). \Cref{pre-bc-response} shows the residuals of the resulting model. The strong (nonlinear) correlation between the predicted \var{co2} values and the residuals prompts us to transform the response variable. We find the optimal Box-Cox power transformation of the response variable for $\lambda = 0.30303$ (see \cref{fig:lambda_ml}). We round this to $0.3$ and create a new linear model with the transformed response variable.
+\label{sec:responsevar_transfrom}\leavevmode\\
+We now create a first linear model (via stepwise AIC regression starting from a model containing all predictor variables). \Cref{fig:pre-bc-response} shows the residuals of the resulting model. The strong (nonlinear) correlation between the predicted \varr{co2} values and the residuals prompts us to transform the response variable. The optimal Box-Cox power transformation of the response variable is found for $\lambda = 0.3$ (see \cref{fig:lambda_ml}). We create a new linear model with the transformed response variable.
 
 \begin{figure}
-  \widedoublefig
-  {img/pre-bc-response_pre-removal_fitted-stdres}
-  {img/pre-bc-response_pre-removal_qq}
-  \caption{Standardised residuals of the linear model before the response variable has been transformed. Fitted values versus standardised residuals, and normal QQ plot of the standardised residuals.}
-  \label{pre-bc-response}
-\end{figure}
-
-\begin{figure}
-  \centering
-  \includegraphics[width=0.7\linewidth]
-  {img/pre-bc-response_pre-removal_lambda-ml}
-  \caption{Log-likelihood of $\lambda$ for the Box-Cox transformation of the response variable of the linear model described in \sectionref{par:responsevar_transfrom}.}
-  \label{fig:lambda_ml}
+  \widetwofigs
+  {
+    \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
+    {img/pre-bc-response_pre-removal_fitted-stdres}
+    \caption{Standardised residuals of the linear model versus fitted values, before the response variable has been transformed.}
+    \label{fig:pre-bc-response}
+  }
+  {
+    \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
+    {img/pre-bc-response_pre-removal_lambda-ml}
+    \caption{Log-likelihood of $\lambda$ for the Box-Cox transformation of the response variable.}
+    \label{fig:lambda_ml}
+  }
 \end{figure}
 
 \paragraph{Removal of residual outliers}\leavevmode\\
-The residuals of the model with transformed response variable are shown in \cref{post-bc-response_pre-removal}. We find three strong vertical outliers. They are:
+The residuals of the model with transformed response variable are shown in \cref{fig:post-bc-response_pre-removal}. We find three strong vertical outliers. They are:
 \begin{itemize}[topsep=0pt,itemsep=0pt]
   \item the \car{Volkswagen}{LT 35 Kombi MWB - LWB}{2.8 (158 PS) TDI Axle Ratio 3.727};
   \item the \car{Honda}{Insight, Model Year 2012}{1.3 IMA HS, HS-T, HX};
   \item and the \car{Renault}{New M\'egane Hatchback}{2.0 dCi 160 FAP}.
 \end{itemize}
-(These cars do not have higher robust distances than other cars (see \cref{outliers}); they can however be spotted as outliers when the Mahalonobis distance is considered). These three additional outliers are removed from the training set. We note that removing these outliers has no effect on the maximum-likelihood $\lambda$ of the Box-Cox transformation of the response variable.
+(These cars do not have higher robust distances than other cars (as in \cref{fig:RD_outliers}); they can however be spotted as outliers when the Mahalonobis distance is considered). These three additional outliers are removed from the training set. We note that removing these outliers has no effect on the maximum-likelihood $\lambda$ of the Box-Cox transformation of the response variable.
 
 \begin{figure}
-  \widedoublefig
-  {img/post-bc-response_pre-removal_fitted-stdres}
-  {img/post-bc-response_pre-removal_qq}
-  \caption{Standardised residuals of the linear model after the response variable has been transformed, but before vertical outliers have been removed. Fitted values versus standardised residuals, and normal QQ plot of the standardised residuals.}
-  \label{post-bc-response_pre-removal}
+  \captionsetup[subfigure]{skip=0pt}
+  \caption{Standardised residuals of the linear model versus fitted values, after the response variable has been transformed.}
+  \widesubfig
+  {
+    \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
+    {img/post-bc-response_pre-removal_fitted-stdres}
+    \caption{Before removal of vertical outliers.}
+    \label{fig:post-bc-response_pre-removal}
+  }{
+    \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
+    {img/post-bc-response_post-removal_fitted-stdres}
+    \caption{After removal of vertical outliers.}
+    \label{fig:post-bc-response_post-removal}
+  }
 \end{figure}
 
-\paragraph{Variable selection}\leavevmode\\
-With optimal input and output transformations and the strongest outliers removed, we can now construct our final model, by selecting an appropriate subset of predictor variables. As already mentioned, bidirectional stepwise AIC regression is used. The procedure is started both from a model containing all predictor variables, and from an empty model containing only a constant term. Both procedures converge to the same model. The included variables, along with estimates for their coefficient and an analysis of variance (ANOVA), are shown in \cref{table:lm}. The variables that are not included, are \var{noise level} and \var{transmission type Manual}. We find a final $R^2$ value of 0.9987, an adjusted $R^2$ value of 0.9987, and a mean squared error $\hat{\sigma}^2$ of $4.750\times 10^{-7}$. The standardised residuals are shown in \cref{post-bc-response_post-removal}.
-
-\begin{figure}
-  \widedoublefig
-  {img/post-bc-response_post-removal_fitted-stdres}
-  {img/post-bc-response_post-removal_qq}
-  \caption{Standardised residuals of the final linear model. Fitted values versus standardised residuals, and normal QQ plot of the standardised residuals.}
-  \label{post-bc-response_post-removal}
-\end{figure}
+\paragraph{Variable selection \& final model}\leavevmode\\
+With optimal input and output transformations and the strongest outliers removed, we can now construct our final model, by selecting an appropriate subset of predictor variables. As already mentioned, bidirectional stepwise AIC regression is used. The procedure is started both from a model containing all predictor variables, and from an empty model containing only a constant term. Both procedures converge to the same model. The included variables, along with estimates for their coefficient and an analysis of variance (ANOVA), are shown in \cref{table:lm}. The variables that are not included, are \varr{noise level} and \varr{transmission type Manual}. We find a final $R^2$ value of 0.9987, an adjusted $R^2$ value of 0.9987, and a mean squared error $\hat{\sigma}^2$ of $4.750\times 10^{-7}$. The standardised residuals are shown in \cref{fig:post-bc-response_post-removal}.
 
 \begin{table}
 \centering
 \wide{\input{table_lm}}
-\caption{Coefficients and ANOVA of the final general linear model.}
+\caption{Coefficients and ANOVA of the final general linear model. Note that both the predictor variables and the response variable are transformed non-linearly, as discussed in the text.}
 \label{table:lm}
 \end{table}
 
 
-\subsection*{Model assumptions}
+\subsection*{Discussion}
 
-For a given model (that is, for a given selection of predictor variables and for given tranformations of the predictor variables and/or the response variable), for the OLS estimator to be the best linear unbiased estimator of the model parameters, the Gauss-Markov conditions need to be satisfied. The first condition, that the errors have expectation zero, is satisfied by construction. The other conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven, but we can check whether some necessary conditions seem to be satisfied.
-(residual plots)
+\paragraph{Performance on the test set}\leavevmode\\
+As we have a proper test set at our disposal, we can check whether our model generalises well. It does. The mean absolute relative error (defined as $\frac{1}{n-p}\sum_{i=1}^{n}{\abs{\frac{\hat{y_i}-y_i}{y_i}}}$) on the test set is $2.9\times 10^{-3}$, demonstrating excellent predictive power -- the $\mathrm{CO_2}$ emissions of a car can be predicted with an error of on average only 0.3\%. The mean squared error on the test set is $8.00\times 10^{-7}$, indicating that our previous estimate $\hat{\sigma}^2 = 4.75\times 10^{-7}$ was a decent one.
 
-\subsection*{Multicollinearity}
+\paragraph{Gauss-Markov conditions}\leavevmode\\
+We check whether our final model satisfies the Gauss-Markov conditions. The first condition, that the errors have expectation zero, is satisfied by construction. The other two conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven to be satisfied, but we can check whether some necessary conditions seem to be satisfied. All residual plots -- residuals versus their indux, residuals versus the fitted values, and residuals versus each of the independent variables -- need to be free of correlation. No curvature, funnel or trend should be visible. All named residual plots have been checked -- both for the training set as well as for the test set. (One such plot can be seen in \cref{fig:post-bc-response_post-removal}). No visible correlations were found, supporting the hypothesis that the Gauss-Markov conditions are satisfied.
+
+\paragraph*{Normality}\leavevmode\\
+Most steps in the construction and analysis of our model assume the errors to be normally distributed (e.g. the Box-Cox transformation of the response variable, the AIC, and the statistics for the coefficients and the ANOVA in \cref{table:lm}). Based on \cref{fig:qq_plots} we can pose that the errors are roughly normaly distributed. The $p$ values for the Shapiro-Wilk test of normality are 
+
+\begin{figure}
+  \caption{Normal QQ plots of residuals}
+  \widesubfig
+  {
+    \includegraphics[width=\textwidth, trim={0 0 0 2cm}, clip]
+    {img/post-bc-response_post-removal_qq}
+    \caption{Training set standardised residuals}
+  }{
+    \includegraphics[width=\textwidth, trim={0 0 0 2cmm}, clip]
+    {img/test_set_qq}
+    \caption{Test set residuals}
+  }
+  \label{fig:qq_plots}
+\end{figure}
+
+\paragraph*{Multicollinearity}\leavevmode\\
 
 extra:
 - interaction terms
@@ -232,7 +268,9 @@ Technometrics 41, 212–223, 1999.
 \lstinputlisting{src/outliers_plot.R}
 \lstinputlisting{src/pairs.R}
 \lstinputlisting{src/jitterboxplots.R}
+\lstinputlisting{src/transformer.R}
 \lstinputlisting{src/lm.R}
+\lstinputlisting{src/evaluate_lm.R}
 
 \clearpage
 \FloatBarrier
@@ -248,8 +286,8 @@ Technometrics 41, 212–223, 1999.
   \widefig{img/jitterbox_co2}
   \widefig{img/jitterbox_co_emissions}
   \widefig{img/jitterbox_nox_emissions}
-  \caption{Univariate distribution of each continuous variable, after the strongest outliers have been removed (as described in \sectionref{outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting; this makes the distribution density more apparent.}
-  \label{jitterboxes}
+  \caption{Univariate distribution of each continuous variable, after the strongest outliers have been removed (as described in \sectionref{sec:RD_outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting; this makes the distribution density more apparent.}
+  \label{fig:jitterboxes}
 \end{figure}
 
 \end{document}
