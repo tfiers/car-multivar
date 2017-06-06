@@ -30,4 +30,3 @@ transform = function(XX, ignored_col='co2', verbose=FALSE, XSource=NULL) {
   }
   return(XX)
 }
-

@@ -55,6 +55,7 @@ print(stepAIC_convergence)
 XTT = expand_factors(transform(XTest, XSource=XTrain))
 y = XTT$co2^-0.3
 yhat = predict(lm1, XTT)
+
 plot(y,yhat)
 abline(0,1)
 

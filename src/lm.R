@@ -1,7 +1,7 @@
 # Model selection by bidirectional stepwise regression using AIC.
 
 source('init.R')
-source('remove_outliers.R')
+source('remove_RD_outliers.R')
 source('transformer.R')
 
 library(MASS)

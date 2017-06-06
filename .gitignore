@@ -1,7 +1,3 @@
-main.pdf
 *.synctex.gz
-*.aux
-*.log
-*.dvi
-*.out
+build/*
 src/data.csv

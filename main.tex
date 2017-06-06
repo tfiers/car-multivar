@@ -14,6 +14,7 @@
 \usepackage{color}
 \usepackage{physics}
 \usepackage{subcaption}
+%\usepackage[defaultlines=4,all]{nowidow}
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 
@@ -73,7 +74,7 @@
 \begin{document}
 
 
-\input{titlepage}
+\input{tex/titlepage}
 
 
 \section{Linear regression}
@@ -86,9 +87,9 @@ The complete dataset of 1500 cars was split into a 1000-car training set and a 5
 We search for outliers by calculating, for each data point, its Mahalanobis distance -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{fig:RD_outliers} shows the resulting robust distances.
 
 \begin{figure}%[h]
-  \widefig{img/multivar_outlier_all}
+  \widefig{fig/multivar_outlier_all}
   \vspace{1mm} \newline
-  \widefig{img/multivar_outlier_zoom}
+  \widefig{fig/multivar_outlier_zoom}
   \caption{Robust distance-to-center of each car in the training set.}
   \label{fig:RD_outliers}
 \end{figure}
@@ -105,14 +106,18 @@ The found strong outliers are removed from the training set.
 
 
 \begin{figure}%[H]
-  \widefig{img/pairs.pdf}
-  \caption{Uni- and bivariate sample distributions (after the strongest outliers have been removed, as described in \sectionref{sec:RD_outlier_removal}).}
+  \widefig{fig/pairs.pdf}
+  \caption{Uni- and bivariate sample distributions (after the strongest robust distance-outliers have been removed).}
   \label{fig:pairs}
 \end{figure}
 
-\Cref{fig:pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2} -- and to a lesser extend \varr{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \varr{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$.
+\Cref{fig:pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2} -- and to a lesser extend \varr{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \varr{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$. These strong pairwise correlations point to the problem of multicollinearity in the data set. Later on we explore this more formally.
 
 We also note that for the variable \varr{noise level}, a large subset of cars take on discrete values. (There are also cars with \varr{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
+
+Additionally, we note that none of the continuous variables seem to be univariate normally distributed (further on we do numeric normality tests, and normal QQ plots have been checked). Rather, they are positively skewed, with heavy right tails.
+
+Finally, note the multimodality of \varr{engine capacity} and \varr{nox emissions}, and the fact that \varr{fuel type} tends to split the other variables into groups -- see e.g. \varr{Diesel} versus \varr{Hybrid} or \varr{Petrol} for \varr{nox emissions}.
 
 
 \subsection*{Model construction}
@@ -125,7 +130,7 @@ The AIC assumes the residuals to be normally distributed. As they are an affine 
 
 \begin{table}
 \centering
-\input{table_lambdas}
+\input{tex/table_lambdas}
 \caption{Maximum likelihood transformation exponents $\lambda$, and $p$-values for the Shapiro-Wilk test of normality before and after transformation, for each possible continuous predictor variable, as described in \sectionref{sec:var_transform}.}
 \label{table:predictorvar_transform}
 \end{table}
@@ -138,13 +143,13 @@ We now create a first linear model (via stepwise AIC regression starting from a 
   \widetwofigs
   {
     \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
-    {img/pre-bc-response_pre-removal_fitted-stdres}
+    {fig/pre-bc-response_pre-removal_fitted-stdres}
     \caption{Standardised residuals of the linear model versus fitted values, before the response variable has been transformed.}
     \label{fig:pre-bc-response}
   }
   {
     \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
-    {img/pre-bc-response_pre-removal_lambda-ml}
+    {fig/pre-bc-response_pre-removal_lambda-ml}
     \caption{Log-likelihood of $\lambda$ for the Box-Cox transformation of the response variable.}
     \label{fig:lambda_ml}
   }
@@ -165,12 +170,12 @@ The residuals of the model with transformed response variable are shown in \cref
   \widesubfig
   {
     \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
-    {img/post-bc-response_pre-removal_fitted-stdres}
+    {fig/post-bc-response_pre-removal_fitted-stdres}
     \caption{Before removal of vertical outliers.}
     \label{fig:post-bc-response_pre-removal}
   }{
     \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
-    {img/post-bc-response_post-removal_fitted-stdres}
+    {fig/post-bc-response_post-removal_fitted-stdres}
     \caption{After removal of vertical outliers.}
     \label{fig:post-bc-response_post-removal}
   }
@@ -181,7 +186,7 @@ With optimal input and output transformations and the strongest outliers removed
 
 \begin{table}
 \centering
-\wide{\input{table_lm}}
+\wide{\input{tex/table_lm}}
 \caption{Coefficients and ANOVA of the final general linear model. Note that both the predictor variables and the response variable are transformed non-linearly, as discussed in the text.}
 \label{table:lm}
 \end{table}
@@ -193,32 +198,28 @@ With optimal input and output transformations and the strongest outliers removed
 As we have a proper test set at our disposal, we can check whether our model generalises well. It does. The mean absolute relative error (defined as $\frac{1}{n-p}\sum_{i=1}^{n}{\abs{\frac{\hat{y_i}-y_i}{y_i}}}$) on the test set is $2.9\times 10^{-3}$, demonstrating excellent predictive power -- the $\mathrm{CO_2}$ emissions of a car can be predicted with an error of on average only 0.3\%. The mean squared error on the test set is $8.00\times 10^{-7}$, indicating that our previous estimate $\hat{\sigma}^2 = 4.75\times 10^{-7}$ was a decent one.
 
 \paragraph{Gauss-Markov conditions}\leavevmode\\
-We check whether our final model satisfies the Gauss-Markov conditions. The first condition, that the errors have expectation zero, is satisfied by construction. The other two conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven to be satisfied, but we can check whether some necessary conditions seem to be satisfied. All residual plots -- residuals versus their indux, residuals versus the fitted values, and residuals versus each of the independent variables -- need to be free of correlation. No curvature, funnel or trend should be visible. All named residual plots have been checked -- both for the training set as well as for the test set. (One such plot can be seen in \cref{fig:post-bc-response_post-removal}). No visible correlations were found, supporting the hypothesis that the Gauss-Markov conditions are satisfied.
+We check whether our final model satisfies the Gauss-Markov conditions. The first condition, that the errors have expectation zero, is satisfied by construction. The other two conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven to be satisfied, but we can check whether some necessary conditions seem to be satisfied. All residual plots -- residuals versus their index, residuals versus the fitted values, and residuals versus each of the independent variables -- need to be free of correlation. No curvature, funnel or trend should be visible. All named residual plots have been checked -- both for the training set as well as for the test set. (One such plot can be seen in \cref{fig:post-bc-response_post-removal}). No visible correlations were found, supporting the hypothesis that the Gauss-Markov conditions are reasonably well satisfied.
 
 \paragraph*{Normality}\leavevmode\\
-Most steps in the construction and analysis of our model assume the errors to be normally distributed (e.g. the Box-Cox transformation of the response variable, the AIC, and the statistics for the coefficients and the ANOVA in \cref{table:lm}). Based on \cref{fig:qq_plots} we can pose that the errors are roughly normaly distributed. The $p$ values for the Shapiro-Wilk test of normality are 
+Most steps in the construction and analysis of our model assume the errors to be normally distributed (e.g. the Box-Cox transformation of the response variable, the AIC, and the statistics for the coefficients and the ANOVA in \cref{table:lm}). Based on the normal QQ plots of \cref{fig:qq_plots}, we pose that the errors are roughly normally distributed, but with tails that are too heavy. (The $p$ values for the Shapiro-Wilk test of normality are \n{0.01} and \n{<2E-16} for the training and test set, respectively). This less-than-ideal normality does not seem to be a problem during model construction. It does have the result however that the statistics and $p$-values in \cref{table:lm} need to be taken with a grain of salt.
 
 \begin{figure}
   \caption{Normal QQ plots of residuals}
   \widesubfig
   {
     \includegraphics[width=\textwidth, trim={0 0 0 2cm}, clip]
-    {img/post-bc-response_post-removal_qq}
+    {fig/post-bc-response_post-removal_qq}
     \caption{Training set standardised residuals}
   }{
     \includegraphics[width=\textwidth, trim={0 0 0 2cmm}, clip]
-    {img/test_set_qq}
+    {fig/test_set_qq}
     \caption{Test set residuals}
   }
   \label{fig:qq_plots}
 \end{figure}
 
 \paragraph*{Multicollinearity}\leavevmode\\
-
-extra:
-- interaction terms
-- nonlinear regression: ANN, SVM (dataset quite large)
-- check on test set
+In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity in the data set. Indeed, when we do more formal tests, we find strong collinearities in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF of 456 is significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30. In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased method with a smaller variance as a remedy.
 
 \section{Classification}
 \subsection*{Variable selection}
@@ -264,30 +265,12 @@ Technometrics 41, 212–223, 1999.
         stringstyle=\color{myred}
 }
 \lstinputlisting{src/init.R}
-\lstinputlisting{src/remove_outliers.R}
+\lstinputlisting{src/remove_RD_outliers.R}
 \lstinputlisting{src/outliers_plot.R}
 \lstinputlisting{src/pairs.R}
-\lstinputlisting{src/jitterboxplots.R}
 \lstinputlisting{src/transformer.R}
 \lstinputlisting{src/lm.R}
 \lstinputlisting{src/evaluate_lm.R}
-
-\clearpage
-\FloatBarrier
-\section{Extra figures}
-\newgeometry{top=0.3cm}
-
-\begin{figure}
-  \widefig{img/jitterbox_engine_capacity}
-  \widefig{img/jitterbox_urban_metric}
-  \widefig{img/jitterbox_extra_urban_metric}
-  \widefig{img/jitterbox_combined_metric}
-  \widefig{img/jitterbox_noise_level}
-  \widefig{img/jitterbox_co2}
-  \widefig{img/jitterbox_co_emissions}
-  \widefig{img/jitterbox_nox_emissions}
-  \caption{Univariate distribution of each continuous variable, after the strongest outliers have been removed (as described in \sectionref{sec:RD_outlier_removal}). These are boxplots overlaid with point plots, where vertical jitter has been added to mitigate overplotting; this makes the distribution density more apparent.}
-  \label{fig:jitterboxes}
-\end{figure}
+\lstinputlisting{src/multicol.R}
 
 \end{document}

@@ -1,5 +1,5 @@
 source('init.R')
-source('remove_outliers.R')
+source('remove_RD_outliers.R')
 
 save = function(affix) { 
   filename = paste('../multivar_outlier_', affix, '.pdf', sep='')
