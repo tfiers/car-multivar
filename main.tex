@@ -84,7 +84,7 @@ The complete dataset of 1500 cars was split into a 1000-car training set and a 5
 \subsection*{Exploratory analysis \& outlier removal}
 \label{sec:RD_outlier_removal}
 
-We search for outliers by calculating, for each data point, its Mahalanobis distance -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{fig:RD_outliers} shows the resulting robust distances.
+We search for outliers by calculating, for each data point, its statistical distance to the multivariate distribution -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{fig:RD_outliers} shows the resulting robust distances.
 
 \begin{figure}%[h]
   \widefig{fig/multivar_outlier_all}
@@ -126,7 +126,7 @@ We will construct a general linear model to predict the \varr{co2} variable. The
 
 \paragraph{Predictor variable transformations}
 \label{sec:var_transform}\leavevmode\\
-The AIC assumes the residuals to be normally distributed. As they are an affine transformation of the predictor variables, the predictor variables need to be normally distributed as well. Thus, before starting the stepwise variable selection procedure, we find a Box-Cox power transformation for all continuous predictor variables that maximises their normality in the maximum likelihood sense. The thusly found exponents $\lambda$ are listed in \cref{table:predictorvar_transform}, along with the $p$-values for the Shapiro-Wilk test of normality before and after the transformation. Note that, except for \varr{noise level}, the normality of each variable greatly increases after the transformation. This was confirmed using normal QQ plots of the variables. We apply the maximum likelihood transformation to all continuous predictor variables, except for \varr{noise level} (as its maximum likelihood exponent falls outside the usual range, and its normality does not significantly improve after transformation).
+The AIC assumes the residuals to be normally distributed. As they are an affine transformation of the predictor variables, the predictor variables need to be normally distributed as well. Thus, before starting the stepwise variable selection procedure, we find a Box-Cox power transformation \cite{boxcox} for all continuous predictor variables that maximises their normality in the maximum likelihood sense. The thusly found exponents $\lambda$ are listed in \cref{table:predictorvar_transform}, along with the $p$-values for the Shapiro-Wilk test of normality before and after the transformation. Note that, except for \varr{noise level}, the normality of each variable greatly increases after the transformation. This was confirmed using normal QQ plots of the variables. We apply the maximum likelihood transformation to all continuous predictor variables, except for \varr{noise level} (as its maximum likelihood exponent falls outside the usual range, and its normality does not significantly improve after transformation).
 
 \begin{table}
 \centering
@@ -137,7 +137,7 @@ The AIC assumes the residuals to be normally distributed. As they are an affine 
 
 \paragraph{Response variable transformation}
 \label{sec:responsevar_transfrom}\leavevmode\\
-We now create a first linear model (via stepwise AIC regression starting from a model containing all predictor variables). \Cref{fig:pre-bc-response} shows the residuals of the resulting model. The strong (nonlinear) correlation between the predicted \varr{co2} values and the residuals prompts us to transform the response variable. The optimal Box-Cox power transformation of the response variable is found for $\lambda = -0.3$ (see \cref{fig:lambda_ml}). We create a new linear model with the transformed response variable.
+We now create a first linear model (via stepwise AIC regression starting from a model containing all predictor variables). \Cref{fig:pre-bc-response} shows the residuals of the resulting model. The strong (nonlinear) correlation between the predicted \varr{co2} values and the residuals prompts us to transform the response variable. The optimal Box-Cox power transformation of the response variable \cite{boxcox} is found for $\lambda = -0.3$ (see \cref{fig:lambda_ml}). We create a new linear model with the transformed response variable.
 
 \begin{figure}
   \widetwofigs
@@ -220,9 +220,11 @@ Most steps in the construction and analysis of our model assume the errors to be
 \end{figure}
 
 \paragraph*{Multicollinearity}\leavevmode\\
-In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we perform more formal tests, strong evidence is found for multicollinearity in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF is 456, significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ (where $\lambda$ are the eigenvalues of the corrrelation matrix of the data) is greater than 30. In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased method with a smaller variance as a remedy.
+In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we perform more formal tests, strong evidence is found for multicollinearity in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF is 456, significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30 (where $\lambda$ are the eigenvalues of the corrrelation matrix of the data). In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased regression method with smaller variance as a remedy.
 
 \section{Classification}
+blablie
+
 \subsection*{Variable selection}
 \subsection*{Logistic model}
 \subsection*{Interpretation}
@@ -243,6 +245,10 @@ Wiley, 1987.
 Rousseeuw, P. J. and van Driessen, K.
 \textit{A fast algorithm for the minimum covariance determinant estimator.}
 Technometrics 41, 212–223, 1999.
+
+\bibitem{boxcox}
+Box, G. E. P. and Cox, D. R.
+\textit{An analysis of transformations (with discussion).} Journal of the Royal Statistical Society B, 26, 211–252, 1964.
 \end{thebibliography}
 
 
