@@ -13,7 +13,7 @@
 \usepackage{listings}
 \usepackage{color}
 \usepackage{subcaption}
-%\usepackage[defaultlines=4,all]{nowidow}
+\usepackage[defaultlines=4,all]{nowidow}
 \usepackage[hidelinks]{hyperref}
 \usepackage{cleveref}
 
@@ -79,12 +79,12 @@
 
 \section{Linear regression}
 
-The complete dataset of 1500 cars was split into a 1000-car training set and a 500-car test set. We continue this analysis with the training set.
+The complete dataset of 1500 cars was randomly split into a 1000-car training set and a 500-car test set. We continue this analysis with the training set.
 
 \subsection*{Exploratory analysis \& outlier removal}
 \label{sec:RD_outlier_removal}
 
-We search for outliers by calculating, for each data point, its statistical distance to the multivariate distribution -- using robust estimates for the center and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{fig:RD_outliers} shows the resulting robust distances.
+We search for outliers by calculating, for each data point, its statistical distance to the multivariate distribution -- using robust estimates for the mean and the covariance matrix. Specifically, the Minimum Covariance Determinant estimator \cite{mcd} was used, approximated by the \texttt{Fast MCD} algorithm \cite{fastmcd}. \Cref{fig:RD_outliers} shows the resulting robust distances.
 
 \begin{figure}%[h]
   \widefig{fig/multivar_outlier_all}
@@ -106,8 +106,8 @@ The found strong outliers are removed from the training set.
 
 
 \begin{figure}%[H]
-  \widefig{fig/pairs.pdf}
-  \caption{Uni- and bivariate sample distributions (after the strongest robust distance-outliers have been removed).}
+  \widefig{fig/pairs_euro-coloured}
+  \caption{Uni- and bivariate distributions in the training set. The three strongest robust distance-outliers have been removed. Colours according to the future classification task. }
   \label{fig:pairs}
 \end{figure}
 
@@ -115,7 +115,7 @@ The found strong outliers are removed from the training set.
 
 We also note that for the variable \varr{noise level}, a large subset of cars take on discrete values. (There are also cars with \varr{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
 
-Additionally, we note that none of the continuous variables seem to be univariate normally distributed (further on we do numeric normality tests, and normal QQ plots have been checked). Rather, they are positively skewed, with heavy right tails.
+Additionally, we note that none of the continuous variables seem to be univariate normally distributed (further on we perform numeric normality tests. Also normal QQ plots have been checked; they did not indicate any normality at all). Rather, their distributions are positively skewed, with heavy right tails.
 
 Finally, note the multimodality of \varr{engine capacity} and \varr{nox emissions}, and the fact that \varr{fuel type} tends to split the other variables into groups -- see e.g. \varr{Diesel} versus \varr{Hybrid} or \varr{Petrol} for \varr{nox emissions}.
 
@@ -146,8 +146,7 @@ We now create a first linear model (via stepwise AIC regression starting from a 
     {fig/pre-bc-response_pre-removal_fitted-stdres}
     \caption{Standardised residuals of the linear model versus fitted values, before the response variable has been transformed.}
     \label{fig:pre-bc-response}
-  }
-  {
+  }{
     \includegraphics[width=\textwidth, trim={0 3mm 0 2cm}, clip]
     {fig/pre-bc-response_pre-removal_lambda-ml}
     \caption{Log-likelihood of $\lambda$ for the Box-Cox transformation of the response variable.}
@@ -199,10 +198,10 @@ With optimal input and output transformations and the strongest outliers removed
 As we have a proper test set at our disposal, we can check whether our model generalises well. It does. The mean absolute relative error (defined as $\frac{1}{n-p}\sum_{i=1}^{n}{\left| \frac{\hat{y_i}-y_i}{y_i}\right|}$) on the test set is $2.9\times 10^{-3}$, demonstrating excellent predictive power -- the $\mathrm{CO_2}$ emissions of a car can be predicted with an error of on average only 0.3\%. The mean squared error on the test set is $8.00\times 10^{-7}$, indicating that our previous estimate $\hat{\sigma}^2 = 4.75\times 10^{-7}$ was a decent one.
 
 \paragraph{Gauss-Markov conditions}\leavevmode\\
-We check whether our final model satisfies the Gauss-Markov conditions. The first condition, that the errors have expectation zero, is satisfied by construction. The other two conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven to be satisfied, but we can check whether some necessary conditions seem to be satisfied. All residual plots -- residuals versus their index, residuals versus the fitted values, and residuals versus each of the independent variables -- need to be free of correlation. No curvature, funnel or trend should be visible. All named residual plots have been checked -- both for the training set as well as for the test set. (One such plot can be seen in \cref{fig:post-bc-response_post-removal}). No visible correlations were found, supporting the hypothesis that the Gauss-Markov conditions are reasonably well satisfied.
+We check whether our final model satisfies the Gauss-Markov conditions. The first condition, that the errors have expectation zero, is satisfied by construction. The other two conditions -- that the errors have equal variance and are uncorrelated -- cannot be definitely proven, but we can check whether some necessary conditions seem to be satisfied. All residual plots -- residuals versus their index, residuals versus the fitted values, and residuals versus each of the independent variables -- need to be free of correlation. No curvature, funnel or trend should be visible. We have checked all possible residual plots -- both for the training set as well as for the test set. (One such plot can be seen in \cref{fig:post-bc-response_post-removal}). No visible correlations were found, supporting the hypothesis that the Gauss-Markov conditions are reasonably well satisfied.
 
 \paragraph*{Normality}\leavevmode\\
-Most steps in the construction and analysis of our model assume the errors to be normally distributed (e.g. the Box-Cox transformation of the response variable, the AIC, and the statistics for the coefficients and the ANOVA in \cref{table:lm}). Based on the normal QQ plots of \cref{fig:qq_plots}, we pose that the errors are roughly normally distributed, but with tails that are too heavy. (The $p$ values for the Shapiro-Wilk test of normality are \n{0.01} and \n{<2E-16} for the training and test set, respectively). This less-than-ideal normality does not seem to be a problem during model construction. It does have the result however that the statistics and $p$-values in \cref{table:lm} need to be taken with a grain of salt.
+Most steps in the construction and analysis of our model assume the errors to be normally distributed (e.g. the Box-Cox transformation of the response variable, the AIC, and the statistics in \cref{table:lm}). Based on the normal QQ plots of \cref{fig:qq_plots}, we pose that the errors are roughly normally distributed, but with tails that are too heavy. (The $p$ values for the Shapiro-Wilk test of normality are \n{0.01} and \n{<2E-16} for the training and test set, respectively). This less-than-ideal normality does not seem to be a problem during model construction. It does have the result however that the statistics and $p$-values in \cref{table:lm} need to be taken with a grain of salt.
 
 \begin{figure}
   \caption{Normal QQ plots of linear model residuals}
@@ -220,23 +219,34 @@ Most steps in the construction and analysis of our model assume the errors to be
 \end{figure}
 
 \paragraph*{Multicollinearity}\leavevmode\\
-In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we perform more formal tests, strong evidence is found for multicollinearity in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF is 456, significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30 (where $\lambda$ are the eigenvalues of the corrrelation matrix of the data). In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased regression method with smaller variance as a remedy.
+In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we perform more formal tests, strong evidence is found for multicollinearity in the data (cutoff values from \cite{mia}): the variance inflation factors (VIF) of these mentioned variables are all larger than 100, and the mean VIF is 456, significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30 (where $\lambda$ are the eigenvalues of the corrrelation matrix of the data). In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased regression method with reduced variance to mitigate its effects.
 
+\pagebreak
 \section{Classification}
-blablie
+\FloatBarrier
+
+For the classification task, the variable \varr{euro standard} is transformed into a binary factor. Former Euro Standards 3 and 4 are considered ``old'' (0), while former Euro Standards 5 and 6 are considered ``new'' (1). We will predict this binary variable by fitting a logistic model, and performing linear and quadratic determinant analyses. But before any model is fit, we turn our attention to the multicollinearity problem.
+
+\subsection*{Decorrelating regressors via PCA}
+
+Instead of the regular unbiased estimator for the linear model parameters, we will choose an estimator that trades off some newly present bias for a large reduction in model variance. We choose for principal component analysis (PCA); which in this context is also sometimes called principal component regression. Our task is then to choose a suitable number $k$ of principal components (PC) to retain.
 
 \begin{figure}
-\centering
-\includegraphics[width=0.7\linewidth]{fig/screeplot}
-\caption{}
-\label{fig:screeplot}
+  \widetwofigs
+  {
+    \includegraphics[width=\textwidth]{fig/screeplot}
+    \caption{Eigenvalues of the correlation matrix of the training data, in descending order.}
+    \label{fig:screeplot}
+  }{
+    \includegraphics[width=\textwidth]{fig/k_search}
+    \caption{Prediction error rates on the test set after fitting a logistic model on the training set using only the first $k$ PC. }
+    \label{fig:k_search}
+  }
 \end{figure}
-\begin{figure}
-\centering
-\includegraphics[width=0.7\linewidth]{fig/k_search}
-\caption{}
-\label{fig:ksearch}
-\end{figure}
+
+For each possible number $k$ of largest eigenvalues (and thus number of PC) to retain, we fitted a full logistic model predicting \varr{euro model} using the transformed input variables and the remaining regressing factors. This model was applied to the (identically transformed) test data. The resulting prediction error rates are shown in \cref{fig:k_search}.
+
+\subsection*{Logistic model}
 
 \begin{table}
 \centering
@@ -259,33 +269,33 @@ blablie
 \label{fig:devianceresiduals}
 \end{figure}
 
+\subsection*{Linear \& quadratic discriminant analysis}
 
 
-%
-%\subsection*{Variable selection}
-%\subsection*{Logistic model}
-%\subsection*{Interpretation}
-%\subsection*{Apparent error rate}
-%\subsection*{Error rate on test set}
-%\subsection*{Linear discriminant analysis}
-%\subsection*{Quadratic discriminant analysis}
-%\subsection*{Comparison}
-
-
+\FloatBarrier
 \begin{thebibliography}{9}
 \bibitem{mcd} 
-Rousseeuw, P. J. and Leroy, A. M. 
+Rousseeuw, P. J. and Leroy, A. M.
+(1987)
 \textit{Robust Regression and Outlier Detection}. 
-Wiley, 1987.
+Wiley, 1987
 
 \bibitem{fastmcd} 
 Rousseeuw, P. J. and van Driessen, K.
+(1999)
 \textit{A fast algorithm for the minimum covariance determinant estimator.}
-Technometrics 41, 212–223, 1999.
+Technometrics 41, 212–223.
 
 \bibitem{boxcox}
 Box, G. E. P. and Cox, D. R.
-\textit{An analysis of transformations (with discussion).} Journal of the Royal Statistical Society B, 26, 211–252, 1964.
+(1964)
+\textit{An analysis of transformations (with discussion).} Journal of the Royal Statistical Society B, 26, 211–252.
+
+\bibitem{mia}
+Hubert, M
+(2017)
+\textit{Statistische modellen en data-analyse.}
+Acco. Deel II, p. 155-156.
 \end{thebibliography}
 
 
@@ -316,5 +326,9 @@ Box, G. E. P. and Cox, D. R.
 \lstinputlisting{src/lm.R}
 \lstinputlisting{src/evaluate_lm.R}
 \lstinputlisting{src/multicol.R}
+\lstinputlisting{src/classification_init.R}
+\lstinputlisting{src/PCA.R}
+\lstinputlisting{src/log_res.R}
+\lstinputlisting{src/LDA_QDA.R}
 
 \end{document}
