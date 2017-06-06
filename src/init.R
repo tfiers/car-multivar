@@ -1,5 +1,5 @@
 rm(list = ls()) # Clear environment
-options(digits = 2) # Set output display precision
+options(digits = 4) # Set output display precision
 cat("\014") # Clear console
 # Hit Ctrl+Shift+L to clear plots
 
@@ -34,3 +34,9 @@ univariate_plot_theme = theme(axis.title.y=element_blank(),
                               panel.grid.major.y=element_blank(),
                               panel.grid.minor.y=element_blank(),
                               legend.position='none')
+
+plot_stdres_bounds = function() {
+  abline(-2.5, 0, lty=2)
+  abline(+2.5, 0, lty=2)
+}
+

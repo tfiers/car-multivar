@@ -9,11 +9,6 @@ print(model$anova)
 
 standardised_residuals = stdres(model)
 
-plot_stdres_bounds = function() {
-  abline(-2.5, 0, lty=2)
-  abline(+2.5, 0, lty=2)
-}
-
 for (col in c(factor_cols,continuous_cols)) {
   plot(XT[[col]], standardised_residuals, xlab=names(X)[col])
   plot_stdres_bounds()
