@@ -205,7 +205,7 @@ We check whether our final model satisfies the Gauss-Markov conditions. The firs
 Most steps in the construction and analysis of our model assume the errors to be normally distributed (e.g. the Box-Cox transformation of the response variable, the AIC, and the statistics for the coefficients and the ANOVA in \cref{table:lm}). Based on the normal QQ plots of \cref{fig:qq_plots}, we pose that the errors are roughly normally distributed, but with tails that are too heavy. (The $p$ values for the Shapiro-Wilk test of normality are \n{0.01} and \n{<2E-16} for the training and test set, respectively). This less-than-ideal normality does not seem to be a problem during model construction. It does have the result however that the statistics and $p$-values in \cref{table:lm} need to be taken with a grain of salt.
 
 \begin{figure}
-  \caption{Normal QQ plots of residuals}
+  \caption{Normal QQ plots of linear model residuals}
   \widesubfig
   {
     \includegraphics[width=\textwidth, trim={0 0 0 2cm}, clip]
@@ -225,14 +225,51 @@ In the exploratory analysis, we noted the strong pairwise correlations between \
 \section{Classification}
 blablie
 
-\subsection*{Variable selection}
-\subsection*{Logistic model}
-\subsection*{Interpretation}
-\subsection*{Apparent error rate}
-\subsection*{Error rate on test set}
-\subsection*{Linear discriminant analysis}
-\subsection*{Quadratic discriminant analysis}
-\subsection*{Comparison}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{fig/screeplot}
+\caption{}
+\label{fig:screeplot}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{fig/k_search}
+\caption{}
+\label{fig:ksearch}
+\end{figure}
+
+\begin{table}
+\centering
+%\hspace{-1cm}
+\wide{\input{tex/table_lrm}}
+\caption{}
+\label{table:lrm}
+\end{table}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{fig/logistic_fit}
+\caption{}
+\label{fig:logisticfit}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\linewidth]{fig/deviance_residuals}
+\caption{}
+\label{fig:devianceresiduals}
+\end{figure}
+
+
+
+%
+%\subsection*{Variable selection}
+%\subsection*{Logistic model}
+%\subsection*{Interpretation}
+%\subsection*{Apparent error rate}
+%\subsection*{Error rate on test set}
+%\subsection*{Linear discriminant analysis}
+%\subsection*{Quadratic discriminant analysis}
+%\subsection*{Comparison}
 
 
 \begin{thebibliography}{9}

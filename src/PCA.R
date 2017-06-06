@@ -36,7 +36,7 @@ screeplot(pca, main='')
 pca@eigenvalues
 
 # Decision: retain k PC
-k = 6
+k = 5
 pca = PcaClassic(XTrain_0, k=k)
 Z = pca@loadings
 XTrain_PCA = XTrain_0 %*% Z

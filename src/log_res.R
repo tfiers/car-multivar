@@ -42,7 +42,7 @@ abline(v=-0.5, lty=2)
 # Transform model coefficients back to input variable space
 #
 # Get PC coefficients only
-PC_coeffs = lrmod$coefficients[2:7]
+PC_coeffs = lrmod$coefficients[2:(2+k-1)]
 input_coeffs = Z %*% PC_coeffs
-
+print(input_coeffs)
 
