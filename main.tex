@@ -12,7 +12,6 @@
 \usepackage{enumitem}
 \usepackage{listings}
 \usepackage{color}
-\usepackage{physics}
 \usepackage{subcaption}
 %\usepackage[defaultlines=4,all]{nowidow}
 \usepackage[hidelinks]{hyperref}
@@ -132,7 +131,7 @@ The AIC assumes the residuals to be normally distributed. As they are an affine 
 \begin{table}
 \centering
 \input{tex/table_lambdas}
-\caption{Maximum likelihood transformation exponents $\lambda$, and $p$-values for the Shapiro-Wilk test of normality before and after transformation, for each possible continuous predictor variable, as described in \sectionref{sec:var_transform}.}
+\caption{Maximum likelihood transformation exponents $\lambda$, and $p$-values for the Shapiro-Wilk test of normality before and after transformation, for each possible continuous predictor variable.}
 \label{table:predictorvar_transform}
 \end{table}
 
@@ -187,8 +186,9 @@ With optimal input and output transformations and the strongest outliers removed
 
 \begin{table}
 \centering
+\hspace{-1cm}
 \wide{\input{tex/table_lm}}
-\caption{Coefficients and ANOVA of the final general linear model. Note that both the predictor variables and the response variable are transformed non-linearly, as discussed in the text. That is why some coefficients may seem counterintuitive at first -- e.g. a negative slope for \protect\varr{engine capacity} with respect to \protect\varr{co2}. $\lambda_j$'s taken from \cref{table:predictorvar_transform}.}
+\caption{Coefficients and ANOVA of the final general linear model. $\lambda_j$'s taken from \cref{table:predictorvar_transform}. Note that both the predictor variables and the response variable are transformed non-linearly. That is why some coefficients may seem counterintuitive at first -- e.g. a negative slope for \protect\varr{engine capacity} with respect to \protect\varr{co2}.}
 \label{table:lm}
 \end{table}
 
@@ -196,7 +196,7 @@ With optimal input and output transformations and the strongest outliers removed
 \subsection*{Discussion}
 
 \paragraph{Performance on the test set}\leavevmode\\
-As we have a proper test set at our disposal, we can check whether our model generalises well. It does. The mean absolute relative error (defined as $\frac{1}{n-p}\sum_{i=1}^{n}{\abs{\frac{\hat{y_i}-y_i}{y_i}}}$) on the test set is $2.9\times 10^{-3}$, demonstrating excellent predictive power -- the $\mathrm{CO_2}$ emissions of a car can be predicted with an error of on average only 0.3\%. The mean squared error on the test set is $8.00\times 10^{-7}$, indicating that our previous estimate $\hat{\sigma}^2 = 4.75\times 10^{-7}$ was a decent one.
+As we have a proper test set at our disposal, we can check whether our model generalises well. It does. The mean absolute relative error (defined as $\frac{1}{n-p}\sum_{i=1}^{n}{\left| \frac{\hat{y_i}-y_i}{y_i}\right|}$) on the test set is $2.9\times 10^{-3}$, demonstrating excellent predictive power -- the $\mathrm{CO_2}$ emissions of a car can be predicted with an error of on average only 0.3\%. The mean squared error on the test set is $8.00\times 10^{-7}$, indicating that our previous estimate $\hat{\sigma}^2 = 4.75\times 10^{-7}$ was a decent one.
 
 \paragraph{Gauss-Markov conditions}\leavevmode\\
 We check whether our final model satisfies the Gauss-Markov conditions. The first condition, that the errors have expectation zero, is satisfied by construction. The other two conditions -- that the errors have equal variance and are uncorrelated -- cannot be proven to be satisfied, but we can check whether some necessary conditions seem to be satisfied. All residual plots -- residuals versus their index, residuals versus the fitted values, and residuals versus each of the independent variables -- need to be free of correlation. No curvature, funnel or trend should be visible. All named residual plots have been checked -- both for the training set as well as for the test set. (One such plot can be seen in \cref{fig:post-bc-response_post-removal}). No visible correlations were found, supporting the hypothesis that the Gauss-Markov conditions are reasonably well satisfied.
@@ -220,7 +220,7 @@ Most steps in the construction and analysis of our model assume the errors to be
 \end{figure}
 
 \paragraph*{Multicollinearity}\leavevmode\\
-In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we do more formal tests, we find strong evidence for multicollinearity in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF of 456 is significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30. In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased method with a smaller variance as a remedy.
+In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we perform more formal tests, strong evidence is found for multicollinearity in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF is 456, significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ (where $\lambda$ are the eigenvalues of the corrrelation matrix of the data) is greater than 30. In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased method with a smaller variance as a remedy.
 
 \section{Classification}
 \subsection*{Variable selection}
