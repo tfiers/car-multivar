@@ -32,6 +32,7 @@
 % Necessary to make space->underscore substitution work. 
 \usepackage[T1]{fontenc}
 % Command that typesets variables in fixed width font, and with spaces automatically replaced by underscores.
+% May need to be prepended by a '\protect' in a \caption.
 \newcommand{\varr}[1]{\texttt{\StrSubstitute{#1}{ }{\_\allowbreak}}}
 
 % For identifying individual datapoints -- i.e. cars.
@@ -111,7 +112,7 @@ The found strong outliers are removed from the training set.
   \label{fig:pairs}
 \end{figure}
 
-\Cref{fig:pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2} -- and to a lesser extend \varr{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \varr{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$. These strong pairwise correlations point to the problem of multicollinearity in the data set. Later on we explore this more formally.
+\Cref{fig:pairs} shows the uni- and bivariate distributions in the data set. Note the very strong correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2} -- and to a lesser extend \varr{engine capacity}. This is in accordance with their meanings: cars with larger engine volumes consume more liters of fuel (all three \varr{ metrics} measure fuel consumption), and every liter of fuel corresponds to a fixed amount of $\mathrm{CO_2}$. These strong pairwise correlations point to the problem of multicollinearity in the data set. We explore this more formally further on.
 
 We also note that for the variable \varr{noise level}, a large subset of cars take on discrete values. (There are also cars with \varr{noise level}s in between). This discrete character would negatively impact a cluster analysis, as the clusters would tend to form around the disrete values; while other variables would have disproportionately less impact on the clustering. However, we decide this will probably not impact the subsequent regression and classification tasks too much, so we keep this variable, for now.
 
@@ -137,7 +138,7 @@ The AIC assumes the residuals to be normally distributed. As they are an affine 
 
 \paragraph{Response variable transformation}
 \label{sec:responsevar_transfrom}\leavevmode\\
-We now create a first linear model (via stepwise AIC regression starting from a model containing all predictor variables). \Cref{fig:pre-bc-response} shows the residuals of the resulting model. The strong (nonlinear) correlation between the predicted \varr{co2} values and the residuals prompts us to transform the response variable. The optimal Box-Cox power transformation of the response variable is found for $\lambda = 0.3$ (see \cref{fig:lambda_ml}). We create a new linear model with the transformed response variable.
+We now create a first linear model (via stepwise AIC regression starting from a model containing all predictor variables). \Cref{fig:pre-bc-response} shows the residuals of the resulting model. The strong (nonlinear) correlation between the predicted \varr{co2} values and the residuals prompts us to transform the response variable. The optimal Box-Cox power transformation of the response variable is found for $\lambda = -0.3$ (see \cref{fig:lambda_ml}). We create a new linear model with the transformed response variable.
 
 \begin{figure}
   \widetwofigs
@@ -187,7 +188,7 @@ With optimal input and output transformations and the strongest outliers removed
 \begin{table}
 \centering
 \wide{\input{tex/table_lm}}
-\caption{Coefficients and ANOVA of the final general linear model. Note that both the predictor variables and the response variable are transformed non-linearly, as discussed in the text.}
+\caption{Coefficients and ANOVA of the final general linear model. Note that both the predictor variables and the response variable are transformed non-linearly, as discussed in the text. That is why some coefficients may seem counterintuitive at first -- e.g. a negative slope for \protect\varr{engine capacity} with respect to \protect\varr{co2}. $\lambda_j$'s taken from \cref{table:predictorvar_transform}.}
 \label{table:lm}
 \end{table}
 
@@ -219,7 +220,7 @@ Most steps in the construction and analysis of our model assume the errors to be
 \end{figure}
 
 \paragraph*{Multicollinearity}\leavevmode\\
-In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity in the data set. Indeed, when we do more formal tests, we find strong collinearities in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF of 456 is significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30. In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased method with a smaller variance as a remedy.
+In the exploratory analysis, we noted the strong pairwise correlations between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric}, and \varr{co2}. This points to the problem of multicollinearity. Indeed, when we do more formal tests, we find strong evidence for multicollinearity in the data: the variance inflation factors (VIF) of the mentioned variables are all larger than 100, and the mean VIF of 456 is significantly larger than 1. The condition number $ \sqrt{\lambda_{max} / \lambda_{min}} = 129 $ is greater than 30. In the preceding linear regression, we have ignored this multicollinearity. In the following exercise however, we will use a biased method with a smaller variance as a remedy.
 
 \section{Classification}
 \subsection*{Variable selection}
