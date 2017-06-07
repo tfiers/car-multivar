@@ -7,9 +7,9 @@ X = read.table('data.txt', header=TRUE)
 X$euro_standard = factor(X$euro_standard)
 
 set.seed(0380267)
-selVec <- c(sample(1:dim(X)[1],1000))
-XTrain <- X[selVec,]
-XTest <- X[-selVec,]
+selVec = c(sample(1:dim(X)[1],1000))
+XTrain = X[selVec,]
+XTest = X[-selVec,]
 
 # These identifying variables will not be included in any models
 id_col_names = c('manufacturer',

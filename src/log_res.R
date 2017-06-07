@@ -18,9 +18,9 @@ print(lrmod$converged)
 print(lrmod$iter)
 
 summary(lrmod)
-# Residual deviance: 776 on 987 dof
-qchisq(0.95,987) # = 1061 > 776 --> do not reject model
-# Deviance of fit: 1324.28 - 775.97 = 548.3 on 4 degrees of freedom
+# Residual deviance: 791 on 988 dof
+qchisq(0.95,988) # = 1062 > 791 --> do not reject model
+# Deviance of fit: 1324.28 - 791.36 = 532.9 on 4 degrees of freedom
 # So this fit explains a lot more than a constant probability.
 qchisq(0.95,4) # = 10
 
@@ -45,4 +45,4 @@ abline(v=-0.5, lty=2)
 PC_coeffs = lrmod$coefficients[2:(2+k-1)]
 input_coeffs = Z %*% PC_coeffs
 print(input_coeffs)
-
+print(Z)
