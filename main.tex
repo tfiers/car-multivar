@@ -223,7 +223,6 @@ In the exploratory analysis, we noted the strong pairwise correlations between \
 
 \pagebreak
 \section{Classification}
-\FloatBarrier
 
 For the classification task, the variable \varr{euro standard} is transformed into a binary factor. Former Euro Standards 3 and 4 are considered ``old'' (0), while former Euro Standards 5 and 6 are considered ``new'' (1). We will predict this binary variable by fitting a logistic model, and performing linear and quadratic determinant analyses. But before any model is fit, we turn our attention to the multicollinearity problem.
 
@@ -244,15 +243,15 @@ Instead of the regular unbiased estimator for the linear model parameters, we wi
   }
 \end{figure}
 
-For each possible number $k$ of largest eigenvalues -- and thus number of PC -- to retain, we fitted a full logistic model predicting \varr{euro standard} from the transformed input variables (see the next section for more details). This model was applied to the -- identically transformed -- test set. The resulting prediction error rates are shown in \cref{fig:k_search}. This error rate decreases monotonically with increasing $k$. This suggests that, for maximum predictive power, we should choose to retain as many PC as possible, up to the full set. (As an aside, this graph also indicates that we are not overfitting on the training data).
+For each possible number $k$ of largest eigenvalues -- and thus number of PC -- to retain, we fitted a full logistic model predicting \varr{euro standard} from the transformed input variables (see the next section for more details on the logistic model). This model was applied to the -- identically transformed -- test set. The resulting prediction error rates are shown in \cref{fig:k_search}. This error rate decreases monotonically with increasing $k$. This suggests that, for maximum predictive power, we should choose to retain as many PC as possible, up to the full set. (As an aside, this graph also indicates that we are not overfitting on the training data).
 
 We will not retain too many PC however. The last PC have corresponding eigenvalues close to zero. (See \cref{fig:screeplot}; the four smallest eigenvalues are 0.29, 0.05, 0.006, and 0.0003). Eigenvalues near zero blow up the estimator variance. They should therefore not be included if we want to mitigate multicollinearity. We are thus faced with a tradeoff in picking $k$.
 
-We choose to drop the last three eigenvalues / PC, and hence retain $ k = 5 $ PC for our transformation. The coefficients of the first five loading vectors of the transformation are listed in \cref{table:lm}. The first PC captures the linear correlation between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric},  \varr{co2}, and to a lesser extent \varr{engine capacity} -- exactly as was noted in our initial exploratory analysis. For the other PCs also, rough ``interpretations'' can be made, mapping the largest PC coefficients to relationships in the data, that are partly visible in \cref{fig:pairs}.
+We choose to drop the last three eigenvalues / PC, and hence retain $ k = 5 $ PC for our transformation. The coefficients of the first five loading vectors of the transformation are listed in \cref{table:lm}. The first PC captures the linear correlation between \varr{urban metric}, \varr{extra urban metric}, \varr{combined metric},  \varr{co2}, and to a lesser extent \varr{engine capacity} -- exactly as was noted in our initial exploratory analysis. For the other PC also, rough ``interpretations'' can be made, mapping the largest PC coefficients to relationships in the data, that are partly visible in \cref{fig:pairs}.
 
 \subsection*{Logistic model}
 
-We fit a logistic model predicting the binary variable \varr{euro standard} from the transformed quantitative predictor variables, and the remaining categorical input variables. The model parameters are estimated via the iteratively reweighted least squares procedure, which converged every time a logistic model was fit. Stepwise AIC regression was tried to prune the model -- but this did not have any effect: no predictor variables were removed. For our selected number of PCs $ k = 5 $, the regression coefficients $ \hat{\beta}^+ $ are listed in \cref{table:lrm}. (Note that for the quantitative predictor variables, these coefficients have been transformed back (were `unmixed'), as the logistic model fitting procedure generates coefficients for the \textit{transformed} (linearly `mixed') variables). The coefficients, or at least their signs, are readily interpretable: newer cars use diesel rather than petrol, and emit less carbon monoxide and nitrogen oxides per kilometre, while older cars tend to have manual transmission and consume more fuel and emit more $\mathrm{CO_2}$ per kilometre. Note that these interpretations are also visible in \cref{fig:pairs} (which is coloured according to \varr{euro standard}), in the unequal univariate distributions on the diagonal.
+We fit a logistic model predicting the binary variable \varr{euro standard} from the transformed quantitative predictor variables, and the remaining categorical input variables. The model parameters are estimated via the iteratively reweighted least squares procedure, which converged every time a logistic model was fit. Stepwise AIC regression was tried to prune the model -- but this did not have any effect: no predictor variables were removed. For our selected number of PC $ k = 5 $, the regression coefficients $ \hat{\beta}^+ $ are listed in \cref{table:lrm}. (Note that for the quantitative predictor variables, these coefficients have been transformed back (were `unmixed'), as the logistic model fitting procedure generates coefficients for the \textit{transformed} (linearly `mixed') variables).
 
 \begin{table}
 \centering
@@ -262,9 +261,10 @@ We fit a logistic model predicting the binary variable \varr{euro standard} from
 \label{table:lrm}
 \end{table}
 
-It turns out that our selection of $ k = 5 $ PC was a good choice: when also including the next PC in our transformation, the slope of \varr{extra urban metric} becomes positive, while the other \varr{metric}s and \varr{co2} keep their negative slopes. This is typical behaviour when is strongly present. At the other end, removing a PC did not qualitatively change the model coefficients -- while the predictive performance of the model was decreased.
+The coefficients, or at least their signs, are readily interpretable: newer cars use diesel rather than petrol, and emit less carbon monoxide and nitrogen oxides per kilometre, while older cars tend to have manual transmission and consume more fuel and emit more $\mathrm{CO_2}$ per kilometre. Note that these interpretations are also visible in \cref{fig:pairs} (which is coloured according to \varr{euro standard}), in the unequal univariate distributions on the diagonal e.g.
 
-\Cref{fig:deviance_residuals} shows that there are no significant outliers in the deviance residuals. The model residual deviance is 791.6 (on 988 degrees of freedom), which is $ < 1062 = \chi^2_{988,0.95} $, thus we do not reject this logistic model. Also, individually, all model coefficients were significant at the $ \alpha = 0.01 $ level. \Cref{fig:logistic_fit} shows the 
+It turns out that our selection of $ k = 5 $ PC was a good choice: when also including the next PC in our transformation, the slope of \varr{extra urban metric} becomes positive, while the other \varr{metric}s and \varr{co2} keep their negative slopes. This is typical behaviour when multicollinearity is present. At the other end, removing a PC did not qualitatively change the model coefficients -- while the predictive performance of the model was decreased.
+
 
 \begin{figure}
   \widetwofigs
@@ -279,8 +279,23 @@ It turns out that our selection of $ k = 5 $ PC was a good choice: when also inc
   }
 \end{figure}
 
+\Cref{fig:deviance_residuals} shows that there are no significant outliers in the deviance residuals. The model residual deviance is 791.6 (on 988 degrees of freedom), which is $ < 1062 = \chi^2_{988,0.95} $, thus we do not reject this logistic model. Also, individually, all model coefficients were significant at the $ \alpha = 0.01 $ level. \Cref{fig:logistic_fit} shows fitted $\eta$ values against the binary response variable and the fitted probabilities. The horizontal dashed line indicates the cutoff value that is used to turn fitted probabilities into binary predictions. It is set to be the proportion of new cars in the training set, 0.38. This cutoff value is used whenever an error rate is calculated (be it for the training set or the test set). The dashed vertical line is the corresponding $ \eta $ decision boundary.
+
+The error rate of this logistic model both on the training set and the test set is shown in \cref{table:error_rates}.
+
+\begin{table}
+\centering
+\wide{\input{tex/table_error_rates}}
+\caption{Error rates of different models.}
+\label{table:error_rates}
+\end{table}
 
 \subsection*{Linear \& quadratic discriminant analysis}
+
+We perform linear and quadratic dicriminant analysis on the PC-transformed quantitative variables to predict the binary ``class'' variable \varr{euro standard}. (No categorical variables can be included in the models). The PC transform of the input variables is not necessary, but can help in regularising the models. The models are fitted on the training set, and tested on both the training set and the test set. The results are shown in \cref{table:error_rates}.
+
+Looking at these error rates, the QDA model seems to overfit on the training data and generalises worse than the logistic model or the LDA model. LDA surprisingly performs \textit{better} on the test set than on the training set. Overall, the performance of these three classifiers is comparable.
+
 
 
 \FloatBarrier
